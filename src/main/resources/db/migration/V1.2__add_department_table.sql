@@ -1,5 +1,5 @@
 CREATE TABLE department (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
+    name VARCHAR(255) NOT NULL,
     owner INTEGER REFERENCES users(id) NOT NULL
 )

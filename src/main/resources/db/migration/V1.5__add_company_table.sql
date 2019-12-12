@@ -1,0 +1,6 @@
+CREATE TABLE company (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
+);
+
+ALTER TABLE users ADD COLUMN company_id INTEGER REFERENCES company(id) NOT NULL DEFAULT 0;
