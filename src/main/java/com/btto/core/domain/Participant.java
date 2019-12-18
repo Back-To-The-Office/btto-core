@@ -4,10 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 @NoArgsConstructor
 @Getter
@@ -15,6 +12,7 @@ import javax.persistence.ManyToOne;
 @Entity
 public class Participant {
     @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Integer id;
     @ManyToOne
     @JoinColumn(name = "participant", nullable = false)

@@ -13,6 +13,7 @@ import java.util.Set;
 @Entity
 public class Department {
     @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Integer id;
     private String name;
     @ManyToOne(fetch = FetchType.LAZY)

@@ -13,6 +13,7 @@ import java.util.Set;
 @Entity
 public class Company {
     @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Integer id;
     private String name;
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)

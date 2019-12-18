@@ -15,6 +15,7 @@ import java.util.Set;
 @Table(name = "Users")
 public class User {
     @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Integer id;
     private String firstName;
     private String lastName;

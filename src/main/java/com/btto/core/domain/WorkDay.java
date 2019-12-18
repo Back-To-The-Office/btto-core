@@ -13,6 +13,7 @@ import java.time.Instant;
 @Entity(name = "workday")
 public class WorkDay {
     @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Integer id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="owner", nullable = false)
