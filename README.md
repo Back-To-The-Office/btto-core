@@ -27,7 +27,7 @@ curl --location --request POST '${CLIENT_ID}:${CLIENT_SECRET}@${BTTO_HOST}/oauth
 If you're not a cheater you will get the following answer:
 
 ```
-
+{
     "access_token": "long long tocken",
     "token_type": "bearer",
     "expires_in": 43199,
