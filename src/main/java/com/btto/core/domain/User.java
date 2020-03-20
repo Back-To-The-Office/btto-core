@@ -5,7 +5,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import java.time.Instant;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -15,17 +28,18 @@ import java.util.Set;
 @Table(name = "Users")
 public class User {
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Integer id;
+    private String email;
     private String firstName;
     private String lastName;
-    private String secret;
+    private String password;
     @Lob
     private String contacts;
     @Enumerated(EnumType.STRING)
     private Role role;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_id", nullable = false)
+    @JoinColumn(name = "company_id")
     private Company company;
     @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<Department> departments;
@@ -33,4 +47,6 @@ public class User {
     private Set<Participant> participants;
     @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<WorkDay> workDays;
+    private Instant lastUpdate;
+    private String deactivatedEmail;
 }

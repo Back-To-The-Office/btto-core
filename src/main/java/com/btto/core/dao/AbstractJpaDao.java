@@ -9,7 +9,7 @@ public abstract class AbstractJpaDao<T> {
     private final Class<T> clazz;
 
     @PersistenceContext
-    private EntityManager entityManager;
+    protected EntityManager entityManager;
 
     public AbstractJpaDao(Class<T> clazz) {
         this.clazz = clazz;
