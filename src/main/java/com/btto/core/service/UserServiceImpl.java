@@ -33,6 +33,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void create(final String email, final String password, final String firstName, final String lastName, final Role role) {
+        if (exists(email)) {
+            throw new UserServiceException("User with email " + email + " already exists", UserServiceException.Type.AlreadyExists);
+        }
         createImpl(email, password, firstName, lastName, role);
     }
 
@@ -77,6 +80,10 @@ public class UserServiceImpl implements UserService {
         checkNotNull(usersList);
         checkArgument(usersList.size() <= 1);
         return CollectionUtils.isEmpty(usersList) ? Optional.empty() : Optional.of(usersList.get(0));
+    }
+
+    private boolean exists(final String email) {
+        return !CollectionUtils.isEmpty(userDao.getUserByEmail(email));
     }
 
 }

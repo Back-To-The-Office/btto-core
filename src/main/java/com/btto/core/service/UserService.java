@@ -25,7 +25,7 @@ public interface UserService {
         }
 
         public enum Type {
-            NotFound, WrongOldPassword
+            NotFound, WrongOldPassword, AlreadyExists
         }
     }
 }
