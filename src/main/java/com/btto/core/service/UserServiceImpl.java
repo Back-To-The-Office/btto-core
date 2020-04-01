@@ -3,11 +3,10 @@ package com.btto.core.service;
 import com.btto.core.dao.UserDao;
 import com.btto.core.domain.User;
 import com.btto.core.domain.enums.Role;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -18,8 +17,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Service
-public class UserServiceImpl implements UserService {
-    private static Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+public class UserServiceImpl extends AbstractEntityServiceImpl<User> implements UserService {
 
     private final UserDao userDao;
     private final PasswordEncoder passwordEncoder;
@@ -27,38 +25,43 @@ public class UserServiceImpl implements UserService {
 
     public UserServiceImpl(@Autowired final UserDao userDao,
                            @Autowired final PasswordEncoder passwordEncoder) {
+        super(userDao);
         this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
+    @Transactional
     public void create(final String email, final String password, final String firstName, final String lastName, final Role role) {
         if (exists(email)) {
-            throw new UserServiceException("User with email " + email + " already exists", UserServiceException.Type.AlreadyExists);
+            throw new ServiceException("User with email " + email + " already exists", ServiceException.Type.ALREADY_EXISTS);
         }
         createImpl(email, password, firstName, lastName, role);
     }
 
     @Override
+    @Transactional
     public Optional<User> findUserByEmail(final String email) {
         return getSingleUser(email);
     }
 
     @Override
+    @Transactional
     public void changePassword(final String email, final String oldPassword, final String newPassword) {
         final User user = getSingleUser(email)
-                .orElseThrow(() ->new UserServiceException("Can't find user with email " + email, UserServiceException.Type.NotFound));
+                .orElseThrow(() ->new ServiceException("Can't find user with email " + email, ServiceException.Type.NOT_FOUND));
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            throw new UserServiceException("Wrong old password", UserServiceException.Type.WrongOldPassword);
+            throw new ServiceException("Wrong old password", ServiceException.Type.WRONG_OLD_PASSWORD);
         }
         user.setPassword(passwordEncoder.encode(newPassword));
         userDao.update(user);
     }
 
     @Override
+    @Transactional
     public void deactivateUser(final String email) {
         final User userToDelete = getSingleUser(email)
-                .orElseThrow(() ->new UserServiceException("Can't find user with email " + email, UserServiceException.Type.NotFound));
+                .orElseThrow(() ->new ServiceException("Can't find user with email " + email, ServiceException.Type.NOT_FOUND));
         userToDelete.setDeactivatedEmail(userToDelete.getEmail());
         userToDelete.setEmail(UUID.randomUUID().toString().replaceAll("-", ""));
         userDao.update(userToDelete);

@@ -15,6 +15,11 @@ public class UserModel {
     private final String contacts;
 
     public static UserModel fromUserDomain(final User user) {
-        return new UserModel(user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getContacts());
+        return new UserModel(
+                user.getId(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName().orElse(null),
+                user.getContacts().orElse(null));
     }
 }

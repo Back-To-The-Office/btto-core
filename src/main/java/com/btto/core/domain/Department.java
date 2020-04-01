@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import java.util.Optional;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -25,8 +26,15 @@ public class Department {
     private Integer id;
     private String name;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="owner", nullable = false)
+    @JoinColumn(name = "owner", nullable = false)
     private User owner;
     @OneToMany(mappedBy = "department", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<Participant> participants;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company", nullable = false)
+    private Company company;
+
+    public Optional<User> getOwner() {
+        return Optional.ofNullable(owner);
+    }
 }
