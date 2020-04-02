@@ -275,7 +275,7 @@ class AccessServiceImplTest {
     }
 
     @Test
-    void testThanUserCantCreateUser() {
+    void testThatUserCantCreateUser() {
         final Company company = new MockCompanyBuilder(1).build();
         final User user = new MockUserBuilder(1).company(company).build();
 
@@ -283,7 +283,7 @@ class AccessServiceImplTest {
     }
 
     @Test
-    void testThanAdminCanCreateUser() {
+    void testThatAdminCanCreateUser() {
         final Company company = new MockCompanyBuilder(1).build();
         final User admin = new MockUserBuilder(1).role(Role.Admin).company(company).build();
 
@@ -291,14 +291,14 @@ class AccessServiceImplTest {
     }
 
     @Test
-    void testThanAdminWithoutCompanyCantCreateUser() {
+    void testThatAdminWithoutCompanyCantCreateUser() {
         final User admin = new MockUserBuilder(1).role(Role.Admin).build();
 
         assertFalse(accessService.hasUserRight(admin, null, AccessService.UserRight.CREATE));
     }
 
     @Test
-    void testThanUserCanSetStatus() {
+    void testThatUserCanSetStatus() {
         final Company company = new MockCompanyBuilder(1).build();
         final User user = new MockUserBuilder(1).company(company).build();
 
@@ -306,7 +306,7 @@ class AccessServiceImplTest {
     }
 
     @Test
-    void testThanAdminCantSetStatusToAnotherUser() {
+    void testThatAdminCantSetStatusToAnotherUser() {
         final Company company = new MockCompanyBuilder(1).build();
         final User admin = new MockUserBuilder(1).company(company).role(Role.Admin).build();
         final User user = new MockUserBuilder(2).company(company).build();
@@ -316,7 +316,7 @@ class AccessServiceImplTest {
 
     @ParameterizedTest
     @EnumSource(AccessService.DepartmentRight.class)
-    void testThatAdminWithoutCompanyCanDoNothingWithDepartments(final AccessService.DepartmentRight right) {
+    void testThatAdminWithoutCompanyCantDoAnythingWithDepartments(final AccessService.DepartmentRight right) {
         final User admin = new MockUserBuilder(1).role(Role.Admin).build();
         assertFalse(accessService.hasDepartmentRight(admin, null, right));
     }
