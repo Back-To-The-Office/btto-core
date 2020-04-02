@@ -1,41 +1,19 @@
 package com.btto.core.dao;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
 
-@SuppressWarnings("WeakerAccess")
-public abstract class AbstractJpaDao<T> {
-    private final Class<T> clazz;
+public interface AbstractJpaDao<T> {
+    void delete(T entity);
 
-    @PersistenceContext
-    protected EntityManager entityManager;
+    T update(T entity);
 
-    public AbstractJpaDao(Class<T> clazz) {
-        this.clazz = clazz;
-    }
+    void create(T entity);
 
-    public T findOne(long id){
-        return entityManager.find( clazz, id );
-    }
-    public List<T> findAll(){
-        return entityManager.createQuery("from " + clazz.getName(), clazz)
-                .getResultList();
-    }
+    T findOne(int id);
 
-    public void create(T entity ){
-        entityManager.persist(entity);
-    }
+    List<T> findAll();
 
-    public T update(T entity){
-        return entityManager.merge( entity );
-    }
+    void deleteById(int id);
 
-    public void delete(T entity){
-        entityManager.remove( entity );
-    }
-    public void deleteById(long entityId){
-        T entity = findOne( entityId );
-        delete( entity );
-    }
+    boolean exists(int id);
 }

@@ -19,6 +19,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -49,4 +50,20 @@ public class User {
     private Set<WorkDay> workDays;
     private Instant lastUpdate;
     private String deactivatedEmail;
+
+    public Optional<Company> getCompany() {
+        return Optional.ofNullable(company);
+    }
+
+    public Optional<String> getLastName() {
+        return Optional.of(lastName);
+    }
+
+    public Optional<String> getContacts() {
+        return Optional.of(contacts);
+    }
+
+    public Optional<String> getDeactivatedEmail() {
+        return Optional.of(deactivatedEmail);
+    }
 }
