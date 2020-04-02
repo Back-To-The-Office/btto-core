@@ -615,7 +615,7 @@ class AccessServiceImplTest {
 
     @ParameterizedTest
     @EnumSource(AccessService.WorkDayRight.class)
-    void testThatAdminWithoutCompanyCanDoNothingWithWorkDay(final AccessService.WorkDayRight right) {
+    void testThatAdminWithoutCompanyCantDoAnythingWithWorkDay(final AccessService.WorkDayRight right) {
         final User admin = new MockUserBuilder(1).role(Role.Admin).build();
         assertFalse(accessService.hasWorkDayRight(admin, null, right));
     }
