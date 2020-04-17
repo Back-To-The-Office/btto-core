@@ -4,8 +4,11 @@ import com.btto.core.domain.enums.Role;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -19,6 +22,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,8 +35,11 @@ public class User {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Integer id;
+    @Length(min = 3, max = 255)
     private String email;
+    @Length(max = 255)
     private String firstName;
+    @Length(max = 255)
     private String lastName;
     private String password;
     @Lob
@@ -49,21 +56,30 @@ public class User {
     @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<WorkDay> workDays;
     private Instant lastUpdate;
+    @Length(min = 3, max = 255)
     private String deactivatedEmail;
+    @Convert(converter = Jsr310JpaConverters.ZoneIdConverter.class)
+    private ZoneId timezone;
+    @Length(max = 255)
+    private String position;
 
     public Optional<Company> getCompany() {
         return Optional.ofNullable(company);
     }
 
     public Optional<String> getLastName() {
-        return Optional.of(lastName);
+        return Optional.ofNullable(lastName);
     }
 
     public Optional<String> getContacts() {
-        return Optional.of(contacts);
+        return Optional.ofNullable(contacts);
     }
 
     public Optional<String> getDeactivatedEmail() {
-        return Optional.of(deactivatedEmail);
+        return Optional.ofNullable(deactivatedEmail);
+    }
+
+    public Optional<String> getPosition() {
+        return Optional.ofNullable(position);
     }
 }
