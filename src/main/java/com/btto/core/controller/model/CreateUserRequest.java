@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class CreateUserRequestModel extends RegisterUserRequestModel {
+public class CreateUserRequest extends RegisterUserRequest {
     @NotNull
     private RoleModel role;
 }

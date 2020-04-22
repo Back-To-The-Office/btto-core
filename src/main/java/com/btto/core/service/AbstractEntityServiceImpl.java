@@ -7,13 +7,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @AllArgsConstructor
-public abstract class AbstractEntityServiceImpl<T> implements AbstractEntityService<T> {
+public abstract class AbstractEntityServiceImpl<Entity, Dao extends AbstractJpaDao<Entity>> implements AbstractEntityService<Entity> {
 
-    private final AbstractJpaDao<T> dao;
+    public final Dao dao;
 
     @Override
     @Transactional
-    public Optional<T> find(Integer id) {
+    public Optional<Entity> find(Integer id) {
         return Optional.ofNullable(dao.findOne(id));
     }
 }

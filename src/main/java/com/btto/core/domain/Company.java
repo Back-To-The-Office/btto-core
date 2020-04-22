@@ -26,4 +26,5 @@ public class Company {
     private String name;
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<User> users;
+    private boolean enabled;
 }

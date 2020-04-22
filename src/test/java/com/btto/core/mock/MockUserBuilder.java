@@ -17,6 +17,8 @@ public class MockUserBuilder {
     private Role role = null;
     private Company company = null;
     private Set<Department> departments = null;
+    private String email = null;
+    private String password = null;
 
     public MockUserBuilder(final Integer id) {
         this.id = id;
@@ -41,6 +43,16 @@ public class MockUserBuilder {
         return departments(ImmutableSet.copyOf(departments));
     }
 
+    public MockUserBuilder email(final String email) {
+        this.email = email;
+        return this;
+    }
+
+    public MockUserBuilder password(final String password) {
+        this.password = password;
+        return this;
+    }
+
     public User build() {
         final User user = mock(User.class);
         when(user.getId()).thenReturn(id);
@@ -54,6 +66,12 @@ public class MockUserBuilder {
             when(user.getDepartments()).thenReturn(departments);
         } else {
             when(user.getDepartments()).thenReturn(ImmutableSet.of());
+        }
+        if (email != null) {
+            when(user.getEmail()).thenReturn(email);
+        }
+        if (password != null) {
+            when(user.getPassword()).thenReturn(password);
         }
         return user;
     }

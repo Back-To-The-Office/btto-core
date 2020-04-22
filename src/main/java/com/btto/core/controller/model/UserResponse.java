@@ -9,7 +9,7 @@ import java.time.ZoneId;
 @SuppressWarnings("FieldCanBeLocal")
 @Getter
 @AllArgsConstructor
-public class UserResponseModel {
+public class UserResponse {
     private final int id;
     private final String email;
     private final String firstName;
@@ -18,8 +18,8 @@ public class UserResponseModel {
     private final ZoneId timezone;
     private final String position;
 
-    public static UserResponseModel fromUserDomain(final User user) {
-        return new UserResponseModel(
+    public static UserResponse fromUserDomain(final User user) {
+        return new UserResponse(
                 user.getId(),
                 user.getEmail(),
                 user.getFirstName(),

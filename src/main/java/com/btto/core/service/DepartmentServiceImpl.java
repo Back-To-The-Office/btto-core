@@ -6,8 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DepartmentServiceImpl extends AbstractEntityServiceImpl<Department> implements DepartmentService {
-    public DepartmentServiceImpl(@Autowired DepartmentDao departmentDao) {
+public class DepartmentServiceImpl extends AbstractEntityServiceImpl<Department, DepartmentDao> implements DepartmentService {
+    @Autowired
+    public DepartmentServiceImpl(final DepartmentDao departmentDao) {
         super(departmentDao);
     }
 }

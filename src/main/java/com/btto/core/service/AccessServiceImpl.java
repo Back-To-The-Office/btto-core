@@ -1,5 +1,6 @@
 package com.btto.core.service;
 
+import com.btto.core.domain.Company;
 import com.btto.core.domain.Department;
 import com.btto.core.domain.User;
 import com.btto.core.domain.enums.Role;
@@ -27,12 +28,21 @@ public final class AccessServiceImpl implements AccessService {
     }
 
     @Override
+    public boolean isAdmin(final User user) {
+        checkNotNull(user);
+        return user.getRole().equals(Role.Admin);
+    }
+
+    @Override
     public boolean hasCompanyRight(final User currentUser, @Nullable final Integer companyId, final CompanyRight right) {
         switch (right) {
             case VIEW:
                 checkNotNull(companyId);
                 if (currentUser.getCompany().isPresent()) {
-                    return currentUser.getCompany().get().getId().equals(companyId);
+                    final Company userCompany = currentUser.getCompany().get();
+                    if (hasAdminRights(currentUser) || userCompany.isEnabled()) {
+                        return currentUser.getCompany().get().getId().equals(companyId);
+                    }
                 }
                 break;
             case EDIT:
@@ -43,7 +53,7 @@ public final class AccessServiceImpl implements AccessService {
                 }
                 break;
             case CREATE:
-                return hasAdminRights(currentUser) && !currentUser.getCompany().isPresent();
+                return hasAdminRights(currentUser) && (!currentUser.getCompany().isPresent() || !currentUser.getCompany().get().isEnabled());
         }
         return false;
     }
@@ -58,7 +68,7 @@ public final class AccessServiceImpl implements AccessService {
                 if (currentUser.getId().equals(userId)) {
                     return true;
                 }
-                if (!currentUser.getCompany().isPresent()) {
+                if (!currentUser.getCompany().isPresent() || !currentUser.getCompany().get().isEnabled()) {
                     return false;
                 }
                 final Integer currentUserCompanyId = currentUser.getCompany().get().getId();
@@ -72,7 +82,7 @@ public final class AccessServiceImpl implements AccessService {
                 if (currentUser.getId().equals(userId)) {
                     return true;
                 }
-                if (!currentUser.getCompany().isPresent()) {
+                if (!currentUser.getCompany().isPresent() || !currentUser.getCompany().get().isEnabled()) {
                     return false;
                 }
                 final Integer currentUserCompanyId = currentUser.getCompany().get().getId();
@@ -83,12 +93,10 @@ public final class AccessServiceImpl implements AccessService {
             } break;
             case REMOVE: {
                 checkNotNull(userId);
-
-
                 if (currentUser.getId().equals(userId) && hasAdminRights(currentUser)) {
                     return true;
                 }
-                if (!currentUser.getCompany().isPresent()) {
+                if (!currentUser.getCompany().isPresent() || !currentUser.getCompany().get().isEnabled()) {
                     return false;
                 }
                 final Integer currentUserCompanyId = currentUser.getCompany().get().getId();
@@ -98,7 +106,7 @@ public final class AccessServiceImpl implements AccessService {
                 }
             } break;
             case CREATE:
-                if (!currentUser.getCompany().isPresent()) {
+                if (!currentUser.getCompany().isPresent() || !currentUser.getCompany().get().isEnabled()) {
                     return false;
                 }
                 return hasAdminRights(currentUser);
@@ -110,7 +118,7 @@ public final class AccessServiceImpl implements AccessService {
 
     @Override
     public boolean hasDepartmentRight(final User currentUser, @Nullable final Integer departmentId, final DepartmentRight departmentRight) {
-        if (!currentUser.getCompany().isPresent()) {
+        if (!currentUser.getCompany().isPresent() || !currentUser.getCompany().get().isEnabled()) {
             return false;
         }
         final Integer currentUserCompanyId = currentUser.getCompany().get().getId();
@@ -162,7 +170,7 @@ public final class AccessServiceImpl implements AccessService {
 
     @Override
     public boolean hasWorkDayRight(final User currentUser, final Integer ownerId, final WorkDayRight workDayRight) {
-        if (!currentUser.getCompany().isPresent()) {
+        if (!currentUser.getCompany().isPresent() || !currentUser.getCompany().get().isEnabled()) {
             return false;
         }
         final User owner = getUser(ownerId);
