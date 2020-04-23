@@ -4,7 +4,7 @@
 ### Back-end
 To register a new user in btto backend use the following request:
 ```
-curl --location --request POST 'https://${BTTO_HOST}/api/v1/register' \
+curl --location --request POST 'https://${BTTO_HOST}/api/v1/users/register' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "email": "test@test.com",
