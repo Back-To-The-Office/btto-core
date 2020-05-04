@@ -1,0 +1,2 @@
+ALTER TABLE company
+    ADD enabled BOOLEAN NOT NULL DEFAULT true;

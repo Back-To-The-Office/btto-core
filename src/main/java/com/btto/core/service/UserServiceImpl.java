@@ -22,16 +22,13 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Service
-public class UserServiceImpl extends AbstractEntityServiceImpl<User> implements UserService {
+public class UserServiceImpl extends AbstractEntityServiceImpl<User, UserDao> implements UserService {
 
-    private final UserDao userDao;
     private final PasswordEncoder passwordEncoder;
 
-
-    public UserServiceImpl(@Autowired final UserDao userDao,
-                           @Autowired final PasswordEncoder passwordEncoder) {
+    @Autowired
+    public UserServiceImpl(final UserDao userDao, final PasswordEncoder passwordEncoder) {
         super(userDao);
-        this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -60,7 +57,7 @@ public class UserServiceImpl extends AbstractEntityServiceImpl<User> implements 
         user.setTimezone(timezone);
         user.setPosition(position);
 
-        userDao.create(user);
+        dao.create(user);
     }
 
     @Override
@@ -72,12 +69,12 @@ public class UserServiceImpl extends AbstractEntityServiceImpl<User> implements 
     @Override
     @Transactional
     public void deactivateUser(final Integer userId) {
-        final User deactivatingUser = Optional.ofNullable(userDao.findOne(userId)).orElseThrow(
+        final User deactivatingUser = Optional.ofNullable(dao.findOne(userId)).orElseThrow(
                 () -> new ServiceException("Can't find user with id: " + userId, ServiceException.Type.NOT_FOUND)
         );
         deactivatingUser.setDeactivatedEmail(deactivatingUser.getEmail());
         deactivatingUser.setEmail(UUID.randomUUID().toString().replaceAll("-", ""));
-        userDao.update(deactivatingUser);
+        dao.update(deactivatingUser);
     }
 
     @Override
@@ -90,7 +87,7 @@ public class UserServiceImpl extends AbstractEntityServiceImpl<User> implements 
             @Nullable final ZoneId timezone,
             @Nullable final Role role,
             @Nullable final String position) {
-        final User user = Optional.ofNullable(userDao.findOne(userId)).orElseThrow(
+        final User user = Optional.ofNullable(dao.findOne(userId)).orElseThrow(
                 () -> new ServiceException("Can't find user with id: " + userId, ServiceException.Type.NOT_FOUND)
         );
 
@@ -109,7 +106,7 @@ public class UserServiceImpl extends AbstractEntityServiceImpl<User> implements 
         doIfNotNull(role, user::setRole);
         doIfNotNull(position, user::setPosition);
 
-        return userDao.update(user);
+        return dao.update(user);
     }
 
     private static <T> void doIfNotNull(@Nullable final T data, final Consumer<T> action) {
@@ -119,14 +116,14 @@ public class UserServiceImpl extends AbstractEntityServiceImpl<User> implements 
     }
 
     private Optional<User> getUser(final String email) {
-        final List<User> usersList = userDao.getUserByEmail(email);
+        final List<User> usersList = dao.getUserByEmail(email);
         checkNotNull(usersList);
         checkArgument(usersList.size() <= 1);
         return CollectionUtils.isEmpty(usersList) ? Optional.empty() : Optional.of(usersList.get(0));
     }
 
     private boolean exists(final String email) {
-        return !CollectionUtils.isEmpty(userDao.getUserByEmail(email));
+        return !CollectionUtils.isEmpty(dao.getUserByEmail(email));
     }
 
 }

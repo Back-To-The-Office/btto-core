@@ -2,9 +2,8 @@ package com.btto.core.controller.model;
 
 import lombok.Data;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.ZoneId;
 
 /**
@@ -17,19 +16,18 @@ import java.time.ZoneId;
  *     "position":"back-end developer"
  */
 @Data
-public class RegisterUserRequestModel {
+public class RegisterUserRequest {
     @NotNull
-    @Min(3)
-    @Max(255)
+    @Size(min = 3, max = 255)
     private String email;
     @NotNull
-    @Max(255)
+    @Size(max = 255)
     private String firstName;
-    @Max(255)
+    @Size(max = 255)
     private String lastName;
     @NotNull
     private String password;
     private ZoneId timezone;
-    @Max(255)
+    @Size(max = 255)
     private String position;
 }

@@ -4,6 +4,7 @@ import com.btto.core.domain.User;
 import javax.annotation.Nullable;
 
 public interface AccessService {
+    boolean isAdmin(User user);
 
     boolean hasCompanyRight(User currentUser, @Nullable Integer companyId, CompanyRight right);
 

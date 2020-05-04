@@ -1,9 +1,9 @@
 package com.btto.core.controller;
 
-import com.btto.core.controller.model.CreateUserRequestModel;
-import com.btto.core.controller.model.EditUserRequestModel;
-import com.btto.core.controller.model.RegisterUserRequestModel;
-import com.btto.core.controller.model.UserResponseModel;
+import com.btto.core.controller.model.CreateUserRequest;
+import com.btto.core.controller.model.EditUserRequest;
+import com.btto.core.controller.model.RegisterUserRequest;
+import com.btto.core.controller.model.UserResponse;
 import com.btto.core.domain.User;
 import com.btto.core.domain.enums.Role;
 import com.btto.core.service.AccessService;
@@ -38,8 +38,8 @@ public class UserController extends ApiV1AbstractController {
 
     @PostMapping("/users/register")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @ResponseStatus(HttpStatus.OK)
-    public UserResponseModel register(@Valid @RequestBody final RegisterUserRequestModel request) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponse register(@Valid @RequestBody final RegisterUserRequest request) {
         userService.create(
                 request.getEmail(),
                 request.getPassword(),
@@ -50,7 +50,7 @@ public class UserController extends ApiV1AbstractController {
                 request.getTimezone(),
                 request.getPosition()
         );
-        return UserResponseModel.fromUserDomain(
+        return UserResponse.fromUserDomain(
                 userService.findUserByEmail(request
                         .getEmail())
                         .orElseThrow(() -> new ApiException("Unexpected error during user registration", HttpStatus.GONE))
@@ -59,8 +59,8 @@ public class UserController extends ApiV1AbstractController {
 
     @PostMapping("/users/create")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @ResponseStatus(HttpStatus.OK)
-    public UserResponseModel create(@CurrentUser User currentUser, @Valid @RequestBody CreateUserRequestModel request) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public void create(@CurrentUser User currentUser, @Valid @RequestBody CreateUserRequest request) {
         if (!accessService.hasUserRight(currentUser, null, AccessService.UserRight.CREATE)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to create a user", HttpStatus.FORBIDDEN);
         }
@@ -73,11 +73,6 @@ public class UserController extends ApiV1AbstractController {
                 currentUser.getCompany().orElseThrow(() -> new ApiException("User without company can't create a user")),
                 request.getTimezone(),
                 request.getPosition()
-        );
-        return UserResponseModel.fromUserDomain(
-                userService.findUserByEmail(request
-                        .getEmail())
-                        .orElseThrow(() -> new ApiException("Unexpected error during user creation", HttpStatus.GONE))
         );
     }
 
@@ -94,16 +89,16 @@ public class UserController extends ApiV1AbstractController {
     @PostMapping("/users/edit/{userId}")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.OK)
-    public UserResponseModel edit(
+    public UserResponse edit(
             @CurrentUser final User currentUser,
             @PathVariable final Integer userId,
-            @Valid @RequestBody final EditUserRequestModel request
+            @Valid @RequestBody final EditUserRequest request
     ) {
         if (!accessService.hasUserRight(currentUser, userId, AccessService.UserRight.EDIT)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to remove user with id " + userId, HttpStatus.FORBIDDEN);
         }
 
-        return UserResponseModel.fromUserDomain(userService.update(
+        return UserResponse.fromUserDomain(userService.update(
                 userId,
                 request.getOldPassword(),
                 request.getNewPassword(),
@@ -118,11 +113,11 @@ public class UserController extends ApiV1AbstractController {
     @GetMapping("/users/{userId}")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.OK)
-    public UserResponseModel view(@CurrentUser final User currentUser, @PathVariable Integer userId) {
+    public UserResponse view(@CurrentUser final User currentUser, @PathVariable Integer userId) {
         if (!accessService.hasUserRight(currentUser, userId, AccessService.UserRight.VIEW)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to view user with id " + userId, HttpStatus.FORBIDDEN);
         }
-        return UserResponseModel.fromUserDomain(userService.find(userId)
+        return UserResponse.fromUserDomain(userService.find(userId)
                 .orElseThrow(() -> new ApiException("Can't find user with id " + userId, HttpStatus.GONE)));
     }
 }

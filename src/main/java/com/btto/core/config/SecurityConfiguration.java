@@ -1,5 +1,6 @@
 package com.btto.core.config;
 
+import com.btto.core.service.AccessService;
 import com.btto.core.service.UserDetailsServiceImpl;
 import com.btto.core.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +88,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(@Autowired final UserService userService) {
-        return new UserDetailsServiceImpl(userService);
+    @Autowired
+    public UserDetailsService userDetailsService(final UserService userService, final AccessService accessService) {
+        return new UserDetailsServiceImpl(userService, accessService);
     }
 }

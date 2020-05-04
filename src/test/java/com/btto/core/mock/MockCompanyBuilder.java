@@ -10,14 +10,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class MockCompanyBuilder {
-    public MockCompanyBuilder(Integer companyId) {
-        this.companyId = companyId;
-    }
-
     private final Integer companyId;
 
     private String name;
     private Set<User> users;
+    private boolean enabled = true;
+
+    public MockCompanyBuilder(Integer companyId) {
+        this.companyId = companyId;
+    }
 
     public MockCompanyBuilder name(String name) {
         this.name = name;
@@ -34,6 +35,11 @@ public class MockCompanyBuilder {
         return this;
     }
 
+    public MockCompanyBuilder disabled() {
+        this.enabled = false;
+        return this;
+    }
+
     public Company build() {
         final Company company = mock(Company.class);
         when(company.getId()).thenReturn(companyId);
@@ -43,6 +49,7 @@ public class MockCompanyBuilder {
         if (users != null) {
             when(company.getUsers()).thenReturn(users);
         }
+        when(company.isEnabled()).thenReturn(enabled);
         return company;
     }
 }

@@ -34,6 +34,22 @@ class AccessServiceImplTest {
     }
 
     @Test
+    void testThatUserCantViewDisabledCompany() {
+        final Company company = new MockCompanyBuilder(1).disabled().build();
+        final User user = new MockUserBuilder(1).company(company).build();
+
+        assertFalse(accessService.hasCompanyRight(user, 1, AccessService.CompanyRight.VIEW));
+    }
+
+    @Test
+    void testThatAdminCantViewDisabledCompany() {
+        final Company company = new MockCompanyBuilder(1).disabled().build();
+        final User user = new MockUserBuilder(1).role(Role.Admin).company(company).build();
+
+        assertTrue(accessService.hasCompanyRight(user, 1, AccessService.CompanyRight.VIEW));
+    }
+
+    @Test
     void testThatUserWithoutCompanyCantViewCompany() {
         final User user = new MockUserBuilder(1).build();
 
@@ -115,6 +131,14 @@ class AccessServiceImplTest {
     }
 
     @Test
+    void testThatAdminCanCreateCompanyIfItHasDisabledCompany() {
+        final Company company = new MockCompanyBuilder(1).disabled().build();
+        final User admin = new MockUserBuilder(1).company(company).role(Role.Admin).build();
+
+        assertTrue(accessService.hasCompanyRight(admin, null, AccessService.CompanyRight.CREATE));
+    }
+
+    @Test
     void testThatUserCantCreateCompany() {
         final User user = new MockUserBuilder(1).build();
 
@@ -134,6 +158,7 @@ class AccessServiceImplTest {
         assertFalse(accessService.hasUserRight(admin, user.getId(), AccessService.UserRight.GET_STATUS));
     }
 
+
     @Test
     void testThatAdminCanGetStatusOfUserWithTheSameCompany() {
         final Company company = new MockCompanyBuilder(1).build();
@@ -143,6 +168,17 @@ class AccessServiceImplTest {
         when(userService.find(user.getId())).thenReturn(Optional.of(user));
 
         assertTrue(accessService.hasUserRight(admin, user.getId(), AccessService.UserRight.GET_STATUS));
+    }
+
+    @Test
+    void testThatAdminCantGetStatusOfUserWithTheSameDisabledCompany() {
+        final Company company = new MockCompanyBuilder(1).disabled().build();
+        final User admin = new MockUserBuilder(1).role(Role.Admin).company(company).build();
+        final User user = new MockUserBuilder(2).company(company).build();
+
+        when(userService.find(user.getId())).thenReturn(Optional.of(user));
+
+        assertFalse(accessService.hasUserRight(admin, user.getId(), AccessService.UserRight.GET_STATUS));
     }
 
     @Test
@@ -182,6 +218,17 @@ class AccessServiceImplTest {
     }
 
     @Test
+    void testThatAdminCantViewUserWithTheSameDisabledCompany() {
+        final Company company = new MockCompanyBuilder(1).disabled().build();
+        final User admin = new MockUserBuilder(1).role(Role.Admin).company(company).build();
+        final User user = new MockUserBuilder(2).company(company).build();
+
+        when(userService.find(user.getId())).thenReturn(Optional.of(user));
+
+        assertFalse(accessService.hasUserRight(admin, user.getId(), AccessService.UserRight.VIEW));
+    }
+
+    @Test
     void testThatAdminCantViewUserWithDifferentCompany() {
         final Company userCompany = new MockCompanyBuilder(1).build();
         final Company adminCompany = new MockCompanyBuilder(2).build();
@@ -216,6 +263,17 @@ class AccessServiceImplTest {
         when(userService.find(user.getId())).thenReturn(Optional.of(user));
 
         assertTrue(accessService.hasUserRight(admin, user.getId(), AccessService.UserRight.EDIT));
+    }
+
+    @Test
+    void testThatAdminCantEditUserWithTheSameDisabledCompany() {
+        final Company company = new MockCompanyBuilder(1).disabled().build();
+        final User admin = new MockUserBuilder(1).role(Role.Admin).company(company).build();
+        final User user = new MockUserBuilder(2).company(company).build();
+
+        when(userService.find(user.getId())).thenReturn(Optional.of(user));
+
+        assertFalse(accessService.hasUserRight(admin, user.getId(), AccessService.UserRight.EDIT));
     }
 
     @Test
@@ -263,6 +321,17 @@ class AccessServiceImplTest {
     }
 
     @Test
+    void testThatAdminCantRemoveUserWithTheSameDisabledCompany() {
+        final Company company = new MockCompanyBuilder(1).disabled().build();
+        final User admin = new MockUserBuilder(1).role(Role.Admin).company(company).build();
+        final User user = new MockUserBuilder(2).company(company).build();
+
+        when(userService.find(user.getId())).thenReturn(Optional.of(user));
+
+        assertFalse(accessService.hasUserRight(admin, user.getId(), AccessService.UserRight.REMOVE));
+    }
+
+    @Test
     void testThatAdminCantRemoveUserWithTheDifferentCompany() {
         final Company userCompany = new MockCompanyBuilder(1).build();
         final Company adminCompany = new MockCompanyBuilder(2).build();
@@ -288,6 +357,14 @@ class AccessServiceImplTest {
         final User admin = new MockUserBuilder(1).role(Role.Admin).company(company).build();
 
         assertTrue(accessService.hasUserRight(admin, null, AccessService.UserRight.CREATE));
+    }
+
+    @Test
+    void testThatAdminWithDisabledCompanyCantCreateUser() {
+        final Company company = new MockCompanyBuilder(1).disabled().build();
+        final User admin = new MockUserBuilder(1).role(Role.Admin).company(company).build();
+
+        assertFalse(accessService.hasUserRight(admin, null, AccessService.UserRight.CREATE));
     }
 
     @Test
@@ -319,6 +396,18 @@ class AccessServiceImplTest {
     void testThatAdminWithoutCompanyCantDoAnythingWithDepartments(final AccessService.DepartmentRight right) {
         final User admin = new MockUserBuilder(1).role(Role.Admin).build();
         assertFalse(accessService.hasDepartmentRight(admin, null, right));
+    }
+
+    @ParameterizedTest
+    @EnumSource(AccessService.DepartmentRight.class)
+    void testThatAdminWithDisabledCompanyCantDoAnythingWithDepartments(final AccessService.DepartmentRight right) {
+        final Company company = new MockCompanyBuilder(1).disabled().build();
+        final User admin = new MockUserBuilder(1).role(Role.Admin).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).setOwner(admin).build();
+
+        when(departmentService.find(eq(department.getId()))).thenReturn(Optional.of(department));
+
+        assertFalse(accessService.hasDepartmentRight(admin, department.getId(), right));
     }
 
     @Test
@@ -424,6 +513,17 @@ class AccessServiceImplTest {
     }
 
     @Test
+    void testThatAdminCantRemoveDepartmentWithSameDisabledCompany() {
+        final Company company = new MockCompanyBuilder(1).disabled().build();
+        final User admin = new MockUserBuilder(1).role(Role.Admin).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).build();
+
+        when(departmentService.find(eq(department.getId()))).thenReturn(Optional.of(department));
+
+        assertFalse(accessService.hasDepartmentRight(admin, department.getId(), AccessService.DepartmentRight.REMOVE));
+    }
+
+    @Test
     void testThatManagerCanRemoveDepartmentIfItIsOwner() {
         final Company company = new MockCompanyBuilder(1).build();
         final User manager = new MockUserBuilder(1).role(Role.Manager).company(company).build();
@@ -464,6 +564,13 @@ class AccessServiceImplTest {
     }
 
     @Test
+    void testThatAdminCantCreateDepartmentIfCompanyDisabled() {
+        final Company company = new MockCompanyBuilder(1).disabled().build();
+        final User admin = new MockUserBuilder(1).company(company).role(Role.Admin).build();
+        assertFalse(accessService.hasDepartmentRight(admin, null, AccessService.DepartmentRight.CREATE));
+    }
+
+    @Test
     void testThatManagerCanCreateDepartment() {
         final Company company = new MockCompanyBuilder(1).build();
         final User manager = new MockUserBuilder(1).company(company).role(Role.Manager).build();
@@ -498,6 +605,17 @@ class AccessServiceImplTest {
         when(departmentService.find(eq(department.getId()))).thenReturn(Optional.of(department));
 
         assertTrue(accessService.hasDepartmentRight(admin, department.getId(), AccessService.DepartmentRight.ASSIGN));
+    }
+
+    @Test
+    void testThatAdminCanAssignDepartmentIfCompanyDisabled() {
+        final Company company = new MockCompanyBuilder(1).disabled().build();
+        final User admin = new MockUserBuilder(1).company(company).role(Role.Admin).build();
+        final Department department = new MockDepartmentBuilder(1, company).build();
+
+        when(departmentService.find(eq(department.getId()))).thenReturn(Optional.of(department));
+
+        assertFalse(accessService.hasDepartmentRight(admin, department.getId(), AccessService.DepartmentRight.ASSIGN));
     }
 
     @Test
@@ -569,6 +687,17 @@ class AccessServiceImplTest {
     }
 
     @Test
+    void testThatAdminCantAddParticipantToDepartmentIfCompanyDisabled() {
+        final Company company = new MockCompanyBuilder(1).disabled().build();
+        final User admin = new MockUserBuilder(1).company(company).role(Role.Admin).build();
+        final Department department = new MockDepartmentBuilder(1, company).build();
+
+        when(departmentService.find(eq(department.getId()))).thenReturn(Optional.of(department));
+
+        assertFalse(accessService.hasDepartmentRight(admin, department.getId(), AccessService.DepartmentRight.ADD_PARTICIPANT));
+    }
+
+    @Test
     void testThatManagerCanAddParticipantToDepartmentIfItIsOwner() {
         final Company company = new MockCompanyBuilder(1).build();
         final User manager = new MockUserBuilder(1).company(company).role(Role.Manager).build();
@@ -622,7 +751,7 @@ class AccessServiceImplTest {
 
     @ParameterizedTest
     @EnumSource(AccessService.WorkDayRight.class)
-    void testThatAdminCanDoNothingWithWorkDayOsUserWithoutCompany(final AccessService.WorkDayRight right) {
+    void testThatAdminCantDoAnythingWithWorkDayOfUserWithoutCompany(final AccessService.WorkDayRight right) {
         final Company company = new MockCompanyBuilder(1).build();
         final User admin = new MockUserBuilder(1).company(company).role(Role.Admin).build();
         final User user = new MockUserBuilder(2).build();
@@ -634,11 +763,23 @@ class AccessServiceImplTest {
 
     @ParameterizedTest
     @EnumSource(AccessService.WorkDayRight.class)
-    void testThatAdminCanDoNothingWithWorkDayOsUserWithAnotherCompany(final AccessService.WorkDayRight right) {
+    void testThatAdminCantDoAnythingWithWorkDayOfUserWithAnotherCompany(final AccessService.WorkDayRight right) {
         final Company adminCompany = new MockCompanyBuilder(1).build();
         final Company userCompany = new MockCompanyBuilder(2).build();
         final User admin = new MockUserBuilder(1).company(adminCompany).role(Role.Admin).build();
         final User user = new MockUserBuilder(2).company(userCompany).build();
+
+        when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
+
+        assertFalse(accessService.hasWorkDayRight(admin, user.getId(), right));
+    }
+
+    @ParameterizedTest
+    @EnumSource(AccessService.WorkDayRight.class)
+    void testThatAdminCantDoAnythingWithWorkDayOfUserIdCompanyDisabled(final AccessService.WorkDayRight right) {
+        final Company company = new MockCompanyBuilder(1).disabled().build();
+        final User admin = new MockUserBuilder(1).company(company).role(Role.Admin).build();
+        final User user = new MockUserBuilder(2).company(company).build();
 
         when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
 

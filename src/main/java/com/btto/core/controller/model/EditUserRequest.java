@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.Max;
+import javax.validation.constraints.Size;
 import java.time.ZoneId;
 
 /**
@@ -21,12 +21,12 @@ import java.time.ZoneId;
  */
 @SuppressWarnings("unused")
 @Data
-public class EditUserRequestModel {
+public class EditUserRequest {
     @Nullable
-    @Max(255)
+    @Size(max = 255)
     private String firstName;
     @Nullable
-    @Max(255)
+    @Size(max = 255)
     private String lastName;
     @Nullable
     private String oldPassword;
@@ -37,7 +37,7 @@ public class EditUserRequestModel {
     @Nullable
     private RoleModel role;
     @Nullable
-    @Max(255)
+    @Size(max = 255)
     private String position;
 
     @Nullable
