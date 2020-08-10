@@ -14,6 +14,8 @@ public interface AccessService {
 
     boolean hasWorkDayRight(User currentUser, Integer ownerId, WorkDayRight workDayRight);
 
+    boolean isUserCanBeAddedToDepartment(Integer userId, Integer departmentId);
+
     enum CompanyRight {
         CREATE, REMOVE, VIEW, EDIT
     }

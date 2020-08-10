@@ -78,6 +78,7 @@ public class UserServiceImpl extends AbstractEntityServiceImpl<User, UserDao> im
     }
 
     @Override
+    @Transactional
     public User update(
             final Integer userId,
             @Nullable final String oldPassword,

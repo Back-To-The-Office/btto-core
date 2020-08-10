@@ -24,12 +24,12 @@ public class MockDepartmentBuilder {
         this.company = company;
     }
 
-    public MockDepartmentBuilder setOwner(final User owner) {
+    public MockDepartmentBuilder owner(final User owner) {
         this.owner = owner;
         return this;
     }
 
-    public MockDepartmentBuilder setParticipants(final Set<User> participants) {
+    public MockDepartmentBuilder participants(final Set<User> participants) {
         this.participants = participants;
         return this;
     }

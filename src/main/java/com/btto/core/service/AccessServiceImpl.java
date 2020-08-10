@@ -4,8 +4,10 @@ import com.btto.core.domain.Company;
 import com.btto.core.domain.Department;
 import com.btto.core.domain.User;
 import com.btto.core.domain.enums.Role;
+import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -13,7 +15,8 @@ import javax.validation.constraints.NotNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Service
-public final class AccessServiceImpl implements AccessService {
+@Log
+public class AccessServiceImpl implements AccessService {
 
     private final UserService userService;
     private final DepartmentService departmentService;
@@ -28,12 +31,14 @@ public final class AccessServiceImpl implements AccessService {
     }
 
     @Override
+    @Transactional
     public boolean isAdmin(final User user) {
         checkNotNull(user);
         return user.getRole().equals(Role.Admin);
     }
 
     @Override
+    @Transactional
     public boolean hasCompanyRight(final User currentUser, @Nullable final Integer companyId, final CompanyRight right) {
         switch (right) {
             case VIEW:
@@ -60,6 +65,7 @@ public final class AccessServiceImpl implements AccessService {
 
     @SuppressWarnings("DuplicatedCode")
     @Override
+    @Transactional
     public boolean hasUserRight(final User currentUser, @Nullable final Integer userId, final UserRight right) {
         switch (right) {
             case GET_STATUS:
@@ -117,6 +123,7 @@ public final class AccessServiceImpl implements AccessService {
     }
 
     @Override
+    @Transactional
     public boolean hasDepartmentRight(final User currentUser, @Nullable final Integer departmentId, final DepartmentRight departmentRight) {
         if (!currentUser.getCompany().isPresent() || !currentUser.getCompany().get().isEnabled()) {
             return false;
@@ -149,7 +156,9 @@ public final class AccessServiceImpl implements AccessService {
                     if (hasAdminRights(currentUser)) {
                         return true;
                     } else if (hasManagerRights(currentUser)) {
-                        return !subject.getOwner().isPresent() || subject.getOwner().get().getId().equals(currentUser.getId());
+                        return !subject.getOwner().isPresent()
+                                || subject.getOwner().get().getId().equals(currentUser.getId())
+                                || relationService.isManager(currentUser, subject.getOwner().get());
                     }
                 }
             } break;
@@ -160,7 +169,8 @@ public final class AccessServiceImpl implements AccessService {
                     if (hasAdminRights(currentUser)) {
                         return true;
                     } else if (hasManagerRights(currentUser) && subject.getOwner().isPresent()) {
-                        return subject.getOwner().get().getId().equals(currentUser.getId());
+                        return subject.getOwner().get().getId().equals(currentUser.getId())
+                                || relationService.isManager(currentUser, subject.getOwner().get());
                     }
                 }
             } break;
@@ -169,6 +179,7 @@ public final class AccessServiceImpl implements AccessService {
     }
 
     @Override
+    @Transactional
     public boolean hasWorkDayRight(final User currentUser, final Integer ownerId, final WorkDayRight workDayRight) {
         if (!currentUser.getCompany().isPresent() || !currentUser.getCompany().get().isEnabled()) {
             return false;
@@ -193,6 +204,27 @@ public final class AccessServiceImpl implements AccessService {
         }
 
         return false;
+    }
+
+    @Override
+    public boolean isUserCanBeAddedToDepartment(final Integer userId, final Integer departmentId) {
+        final User user = getUser(userId);
+        final Department department = getDepartment(departmentId);
+
+        if (!user.getCompany().isPresent() || !user.getCompany().get().isEnabled() || !department.getCompany().isEnabled()) {
+            return false;
+        }
+
+        if (!user.getCompany().get().getId().equals(department.getCompany().getId())) {
+            return false;
+        }
+
+        if (department.getOwner().isPresent() && !department.getOwner().get().getId().equals(userId)) {
+            // avoid cases when participant is manager for its manager
+            return !relationService.isManager(user, department.getOwner().get());
+        }
+
+        return true;
     }
 
     private User getUser(@NotNull final Integer userId) {
