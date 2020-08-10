@@ -90,6 +90,20 @@ public class DepartmentServiceImpl extends AbstractEntityServiceImpl<Department,
         participantDao.create(participantRecord);
     }
 
+    @Override
+    @Transactional
+    public void removeParticipant(final Integer departmentId, final Integer participantId) {
+        final User user = getUser(participantId);
+        final Department department = getDepartment(departmentId);
+
+        final Participant participant = participantDao.getByUserAndDepartment(user, department)
+                .orElseThrow(() -> new ServiceException(
+                        String.format("Can't find participant with department id: %d and user id %d", departmentId, participantId),
+                        ServiceException.Type.NOT_FOUND));
+
+        participantDao.delete(participant);
+    }
+
 
     private Department getDepartment(final Integer departmentId) {
         return Optional.ofNullable(dao.findOne(departmentId))

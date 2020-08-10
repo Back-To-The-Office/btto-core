@@ -227,6 +227,22 @@ public class AccessServiceImpl implements AccessService {
         return true;
     }
 
+    @Override
+    public boolean isUserCanBeRemovedFromDepartment(final Integer userId, final Integer departmentId) {
+        final Department department = getDepartment(departmentId);
+        final User user = getUser(userId);
+
+        if (!user.getCompany().isPresent() || !user.getCompany().get().isEnabled() || !department.getCompany().isEnabled()) {
+            return false;
+        }
+
+        if (!user.getCompany().get().getId().equals(department.getCompany().getId())) {
+            return false;
+        }
+
+        return !department.getOwner().isPresent() || !department.getOwner().get().getId().equals(userId);
+    }
+
     private User getUser(@NotNull final Integer userId) {
         return userService.find(userId)
                 .orElseThrow(() -> new ServiceException("Can't find user with id " + userId, ServiceException.Type.NOT_FOUND));

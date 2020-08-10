@@ -15,7 +15,7 @@ public class DepartmentResponse {
     private final Set<Integer> participantsIds;
 
 
-    public static DepartmentResponse fromDepartment(final Department department) {
+    public static DepartmentResponse fromDepartmentDomain(final Department department) {
         return new DepartmentResponse(
                 department.getId(),
                 department.getCompany().getId(),

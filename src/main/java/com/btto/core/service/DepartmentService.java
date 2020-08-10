@@ -2,6 +2,7 @@ package com.btto.core.service;
 
 import com.btto.core.domain.Department;
 import com.btto.core.domain.User;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
 
@@ -16,4 +17,7 @@ public interface DepartmentService extends AbstractEntityService<Department> {
     Department assign(Integer departmentId, Integer ownerId);
 
     void addParticipant(Integer departmentId, Integer participantId);
+
+    @Transactional
+    void removeParticipant(Integer departmentId, Integer participantId);
 }

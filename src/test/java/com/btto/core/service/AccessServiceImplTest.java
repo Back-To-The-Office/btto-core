@@ -1085,4 +1085,94 @@ class AccessServiceImplTest {
 
         assertTrue(accessService.isUserCanBeAddedToDepartment(2, 1));
     }
+
+    @Test
+    void testThatUserCanBeRemovedFromDepartment() {
+
+        final Company company = new MockCompanyBuilder(1).build();
+        final User user = new MockUserBuilder(1).company(company).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(owner).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(1))).thenReturn(Optional.of(user));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+
+        assertTrue(accessService.isUserCanBeRemovedFromDepartment(1, 1));
+    }
+
+    @Test
+    void testThatUserWithoutCompanyCantBeRemovedFromDepartment() {
+
+        final Company company = new MockCompanyBuilder(1).build();
+        final User user = new MockUserBuilder(1).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(owner).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(1))).thenReturn(Optional.of(user));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+
+        assertFalse(accessService.isUserCanBeRemovedFromDepartment(1, 1));
+    }
+
+    @Test
+    void testThatUserWithDisabledCompanyCantBeRemovedFromDepartment() {
+
+        final Company company = new MockCompanyBuilder(1).disabled().build();
+        final User user = new MockUserBuilder(1).company(company).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(owner).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(1))).thenReturn(Optional.of(user));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+
+        assertFalse(accessService.isUserCanBeRemovedFromDepartment(1, 1));
+    }
+
+    @Test
+    void testThatUserFromAnotherCompanyCantBeRemovedFromDepartment() {
+
+        final Company company = new MockCompanyBuilder(1).build();
+        final Company userCompany = new MockCompanyBuilder(2).build();
+        final User user = new MockUserBuilder(1).company(userCompany).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(owner).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(1))).thenReturn(Optional.of(user));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+
+        assertFalse(accessService.isUserCanBeRemovedFromDepartment(1, 1));
+    }
+
+    @Test
+    void testThatUserCanBeRemovedFromDepartmentWithoutOwner() {
+
+        final Company company = new MockCompanyBuilder(1).build();
+        final User user = new MockUserBuilder(1).company(company).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(1))).thenReturn(Optional.of(user));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+
+        assertTrue(accessService.isUserCanBeRemovedFromDepartment(1, 1));
+    }
+
+    @Test
+    void testThatOwnerCantBeRemovedFromDepartment() {
+
+        final Company company = new MockCompanyBuilder(1).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(owner).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+
+        assertFalse(accessService.isUserCanBeRemovedFromDepartment(2, 1));
+    }
+
 }

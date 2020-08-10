@@ -16,6 +16,8 @@ public interface AccessService {
 
     boolean isUserCanBeAddedToDepartment(Integer userId, Integer departmentId);
 
+    boolean isUserCanBeRemovedFromDepartment(Integer userId, Integer departmentId);
+
     enum CompanyRight {
         CREATE, REMOVE, VIEW, EDIT
     }
