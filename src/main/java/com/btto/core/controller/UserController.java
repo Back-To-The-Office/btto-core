@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 
 import javax.validation.Valid;
@@ -57,10 +58,21 @@ public class UserController extends ApiV1AbstractController {
         );
     }
 
+    @GetMapping("/users/{userId}")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse get(@ApiIgnore @CurrentUser final User currentUser, @PathVariable Integer userId) {
+        if (!accessService.hasUserRight(currentUser, userId, AccessService.UserRight.VIEW)) {
+            throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to view user with id " + userId, HttpStatus.FORBIDDEN);
+        }
+        return UserResponse.fromUserDomain(userService.find(userId)
+                .orElseThrow(() -> new ApiException("Can't find user with id " + userId, HttpStatus.GONE)));
+    }
+
     @PostMapping("/users/create")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@CurrentUser User currentUser, @Valid @RequestBody CreateUserRequest request) {
+    public void create(@ApiIgnore @CurrentUser User currentUser, @Valid @RequestBody CreateUserRequest request) {
         if (!accessService.hasUserRight(currentUser, null, AccessService.UserRight.CREATE)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to create a user", HttpStatus.FORBIDDEN);
         }
@@ -79,7 +91,7 @@ public class UserController extends ApiV1AbstractController {
     @DeleteMapping("/users/{userId}")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.OK)
-    public void delete(@CurrentUser User currentUser, @PathVariable final Integer userId) {
+    public void delete(@ApiIgnore @CurrentUser User currentUser, @PathVariable final Integer userId) {
         if (!accessService.hasUserRight(currentUser, userId, AccessService.UserRight.REMOVE)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to remove user with id " + userId, HttpStatus.FORBIDDEN);
         }
@@ -90,7 +102,7 @@ public class UserController extends ApiV1AbstractController {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.OK)
     public UserResponse edit(
-            @CurrentUser final User currentUser,
+            @ApiIgnore @CurrentUser final User currentUser,
             @PathVariable final Integer userId,
             @Valid @RequestBody final EditUserRequest request
     ) {
@@ -108,16 +120,5 @@ public class UserController extends ApiV1AbstractController {
                 request.getDomainRole(),
                 request.getPosition()
         ));
-    }
-
-    @GetMapping("/users/{userId}")
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @ResponseStatus(HttpStatus.OK)
-    public UserResponse view(@CurrentUser final User currentUser, @PathVariable Integer userId) {
-        if (!accessService.hasUserRight(currentUser, userId, AccessService.UserRight.VIEW)) {
-            throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to view user with id " + userId, HttpStatus.FORBIDDEN);
-        }
-        return UserResponse.fromUserDomain(userService.find(userId)
-                .orElseThrow(() -> new ApiException("Can't find user with id " + userId, HttpStatus.GONE)));
     }
 }

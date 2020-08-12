@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 
@@ -34,10 +35,22 @@ public class CompanyController extends ApiV1AbstractController {
         this.companyService = companyService;
     }
 
+    @GetMapping("/companies/{companyId}")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @ResponseStatus(HttpStatus.OK)
+    public CompanyResponse get(@ApiIgnore @CurrentUser final User currentUser, @PathVariable final Integer companyId) {
+        if (!accessService.hasCompanyRight(currentUser, companyId, AccessService.CompanyRight.EDIT)) {
+            throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to edit the company", HttpStatus.FORBIDDEN);
+        }
+
+        return CompanyResponse.fromCompanyDomain(companyService.find(companyId)
+                .orElseThrow(() -> new ApiException("Can't find the company", HttpStatus.NOT_FOUND)));
+    }
+
     @PostMapping("/companies/create")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@CurrentUser final User currentUser, @Valid @RequestBody final CreateCompanyRequest request) {
+    public void create(@ApiIgnore @CurrentUser final User currentUser, @Valid @RequestBody final CreateCompanyRequest request) {
         if (!accessService.hasCompanyRight(currentUser, null, AccessService.CompanyRight.CREATE)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to create a company", HttpStatus.FORBIDDEN);
         }
@@ -47,7 +60,7 @@ public class CompanyController extends ApiV1AbstractController {
     @DeleteMapping("/companies/{companyId}")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.OK)
-    public void delete(@CurrentUser final User currentUser, @PathVariable final Integer companyId) {
+    public void delete(@ApiIgnore @CurrentUser final User currentUser, @PathVariable final Integer companyId) {
         if (!accessService.hasCompanyRight(currentUser, companyId, AccessService.CompanyRight.REMOVE)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to delete the company", HttpStatus.FORBIDDEN);
         }
@@ -57,23 +70,11 @@ public class CompanyController extends ApiV1AbstractController {
     @PostMapping("/companies/edit/{companyId}")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.OK)
-    public CompanyResponse edit(@CurrentUser final User currentUser, @PathVariable final Integer companyId, @Valid @RequestBody final EditCompanyRequest request) {
+    public CompanyResponse edit(@ApiIgnore @CurrentUser final User currentUser, @PathVariable final Integer companyId, @Valid @RequestBody final EditCompanyRequest request) {
         if (!accessService.hasCompanyRight(currentUser, companyId, AccessService.CompanyRight.EDIT)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to edit the company", HttpStatus.FORBIDDEN);
         }
 
         return CompanyResponse.fromCompanyDomain(companyService.update(companyId, request.getName()));
-    }
-
-    @GetMapping("/companies/{companyId}")
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @ResponseStatus(HttpStatus.OK)
-    public CompanyResponse view(@CurrentUser final User currentUser, @PathVariable final Integer companyId) {
-        if (!accessService.hasCompanyRight(currentUser, companyId, AccessService.CompanyRight.EDIT)) {
-            throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to edit the company", HttpStatus.FORBIDDEN);
-        }
-
-        return CompanyResponse.fromCompanyDomain(companyService.find(companyId)
-                .orElseThrow(() -> new ApiException("Can't find the company", HttpStatus.NOT_FOUND)));
     }
 }
