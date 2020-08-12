@@ -403,7 +403,7 @@ class AccessServiceImplTest {
     void testThatAdminWithDisabledCompanyCantDoAnythingWithDepartments(final AccessService.DepartmentRight right) {
         final Company company = new MockCompanyBuilder(1).disabled().build();
         final User admin = new MockUserBuilder(1).role(Role.Admin).company(company).build();
-        final Department department = new MockDepartmentBuilder(1, company).setOwner(admin).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(admin).build();
 
         when(departmentService.find(eq(department.getId()))).thenReturn(Optional.of(department));
 
@@ -460,7 +460,7 @@ class AccessServiceImplTest {
     void testThatManagerCanEditDepartmentIfItIsOwner() {
         final Company company = new MockCompanyBuilder(1).build();
         final User manager = new MockUserBuilder(1).role(Role.Manager).company(company).build();
-        final Department department = new MockDepartmentBuilder(1, company).setOwner(manager).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(manager).build();
 
         when(departmentService.find(eq(department.getId()))).thenReturn(Optional.of(department));
 
@@ -527,7 +527,7 @@ class AccessServiceImplTest {
     void testThatManagerCanRemoveDepartmentIfItIsOwner() {
         final Company company = new MockCompanyBuilder(1).build();
         final User manager = new MockUserBuilder(1).role(Role.Manager).company(company).build();
-        final Department department = new MockDepartmentBuilder(1, company).setOwner(manager).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(manager).build();
 
         when(departmentService.find(eq(department.getId()))).thenReturn(Optional.of(department));
 
@@ -622,9 +622,25 @@ class AccessServiceImplTest {
     void testThatManagerCanAssignDepartmentIfItIsOwner() {
         final Company company = new MockCompanyBuilder(1).build();
         final User manager = new MockUserBuilder(1).company(company).role(Role.Manager).build();
-        final Department department = new MockDepartmentBuilder(1, company).setOwner(manager).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(manager).build();
 
         when(departmentService.find(eq(department.getId()))).thenReturn(Optional.of(department));
+
+        assertTrue(accessService.hasDepartmentRight(manager, department.getId(), AccessService.DepartmentRight.ASSIGN));
+    }
+
+    @Test
+    void testThatManagerCanAssignDepartmentIfItIsOwnerOfDepartmentOwnerTeam() {
+        final Company company = new MockCompanyBuilder(1).build();
+        final User mainManager = new MockUserBuilder(1).company(company).role(Role.Manager).build();
+        final Department managerDepartment = new MockDepartmentBuilder(1, company).owner(mainManager).build();
+
+        final User manager = new MockUserBuilder(2).company(company).departments(managerDepartment).role(Role.Manager).build();
+
+        final Department department = new MockDepartmentBuilder(2, company).owner(manager).build();
+
+        when(departmentService.find(eq(department.getId()))).thenReturn(Optional.of(department));
+        when(relationService.isManager(eq(mainManager), eq(manager))).thenReturn(true);
 
         assertTrue(accessService.hasDepartmentRight(manager, department.getId(), AccessService.DepartmentRight.ASSIGN));
     }
@@ -645,7 +661,7 @@ class AccessServiceImplTest {
         final Company company = new MockCompanyBuilder(1).build();
         final User manager = new MockUserBuilder(1).company(company).role(Role.Manager).build();
         final User departmentManager = new MockUserBuilder(2).company(company).role(Role.Manager).build();
-        final Department department = new MockDepartmentBuilder(1, company).setOwner(departmentManager).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(departmentManager).build();
 
         when(departmentService.find(eq(department.getId()))).thenReturn(Optional.of(department));
 
@@ -701,7 +717,7 @@ class AccessServiceImplTest {
     void testThatManagerCanAddParticipantToDepartmentIfItIsOwner() {
         final Company company = new MockCompanyBuilder(1).build();
         final User manager = new MockUserBuilder(1).company(company).role(Role.Manager).build();
-        final Department department = new MockDepartmentBuilder(1, company).setOwner(manager).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(manager).build();
 
         when(departmentService.find(eq(department.getId()))).thenReturn(Optional.of(department));
 
@@ -724,11 +740,28 @@ class AccessServiceImplTest {
         final Company company = new MockCompanyBuilder(1).build();
         final User manager = new MockUserBuilder(1).company(company).role(Role.Manager).build();
         final User departmentManager = new MockUserBuilder(2).company(company).role(Role.Manager).build();
-        final Department department = new MockDepartmentBuilder(1, company).setOwner(departmentManager).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(departmentManager).build();
 
         when(departmentService.find(eq(department.getId()))).thenReturn(Optional.of(department));
 
         assertFalse(accessService.hasDepartmentRight(manager, department.getId(), AccessService.DepartmentRight.ADD_PARTICIPANT));
+    }
+
+    @Test
+    void testThatManagerCanAddParticipantToDepartmentIfItIsNotOwnerButItIsOwnerOfDepartmentOwner() {
+        final Company company = new MockCompanyBuilder(1).build();
+
+        final User mainManager = new MockUserBuilder(1).company(company).role(Role.Manager).build();
+        final Department managerDepartment = new MockDepartmentBuilder(1, company).owner(mainManager).build();
+
+
+        final User manager = new MockUserBuilder(2).company(company).departments(managerDepartment).role(Role.Manager).build();
+        final Department department = new MockDepartmentBuilder(2, company).owner(manager).build();
+
+        when(departmentService.find(eq(department.getId()))).thenReturn(Optional.of(department));
+        when(relationService.isManager(mainManager, manager)).thenReturn(true);
+
+        assertTrue(accessService.hasDepartmentRight(mainManager, department.getId(), AccessService.DepartmentRight.ADD_PARTICIPANT));
     }
 
     @Test
@@ -942,4 +975,204 @@ class AccessServiceImplTest {
 
         assertFalse(accessService.hasWorkDayRight(manager, user.getId(), AccessService.WorkDayRight.SUBTRACT_TIME));
     }
+
+    @Test
+    void testThatUserCanBeAddedToDepartment() {
+
+        final Company company = new MockCompanyBuilder(1).build();
+        final User user = new MockUserBuilder(1).company(company).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(owner).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(1))).thenReturn(Optional.of(user));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+        when(relationService.isManager(eq(user), eq(owner))).thenReturn(false);
+
+        assertTrue(accessService.isUserCanBeAddedToDepartment(1, 1));
+    }
+
+    @Test
+    void testThatUserWithoutCompanyCantBeAddedToDepartment() {
+
+        final Company company = new MockCompanyBuilder(1).build();
+        final User user = new MockUserBuilder(1).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(owner).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(1))).thenReturn(Optional.of(user));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+        when(relationService.isManager(eq(user), eq(owner))).thenReturn(false);
+
+        assertFalse(accessService.isUserCanBeAddedToDepartment(1, 1));
+    }
+
+    @Test
+    void testThatUserWithDisabledCompanyCantBeAddedToDepartment() {
+
+        final Company company = new MockCompanyBuilder(1).disabled().build();
+        final User user = new MockUserBuilder(1).company(company).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(owner).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(1))).thenReturn(Optional.of(user));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+        when(relationService.isManager(eq(user), eq(owner))).thenReturn(false);
+
+        assertFalse(accessService.isUserCanBeAddedToDepartment(1, 1));
+    }
+
+    @Test
+    void testThatUserFromAnotherCompanyCantBeAddedToDepartment() {
+
+        final Company company = new MockCompanyBuilder(1).build();
+        final Company userCompany = new MockCompanyBuilder(2).build();
+        final User user = new MockUserBuilder(1).company(userCompany).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(owner).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(1))).thenReturn(Optional.of(user));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+        when(relationService.isManager(eq(user), eq(owner))).thenReturn(false);
+
+        assertFalse(accessService.isUserCanBeAddedToDepartment(1, 1));
+    }
+
+    @Test
+    void testThatUserCanBeAddedToDepartmentWithoutOwner() {
+
+        final Company company = new MockCompanyBuilder(1).build();
+        final User user = new MockUserBuilder(1).company(company).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(1))).thenReturn(Optional.of(user));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+        when(relationService.isManager(eq(user), eq(owner))).thenReturn(false);
+
+        assertTrue(accessService.isUserCanBeAddedToDepartment(1, 1));
+    }
+
+    @Test
+    void testThatUserThatIsManagerOfOwnerCantBeAddedToDepartment() {
+
+        final Company company = new MockCompanyBuilder(1).build();
+        final User user = new MockUserBuilder(1).company(company).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(owner).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(1))).thenReturn(Optional.of(user));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+        when(relationService.isManager(eq(user), eq(owner))).thenReturn(true);
+
+        assertFalse(accessService.isUserCanBeAddedToDepartment(1, 1));
+    }
+
+    @Test
+    void testThatOwnerCanBeAddedToDepartment() {
+
+        final Company company = new MockCompanyBuilder(1).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(owner).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+
+        assertTrue(accessService.isUserCanBeAddedToDepartment(2, 1));
+    }
+
+    @Test
+    void testThatUserCanBeRemovedFromDepartment() {
+
+        final Company company = new MockCompanyBuilder(1).build();
+        final User user = new MockUserBuilder(1).company(company).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(owner).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(1))).thenReturn(Optional.of(user));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+
+        assertTrue(accessService.isUserCanBeRemovedFromDepartment(1, 1));
+    }
+
+    @Test
+    void testThatUserWithoutCompanyCantBeRemovedFromDepartment() {
+
+        final Company company = new MockCompanyBuilder(1).build();
+        final User user = new MockUserBuilder(1).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(owner).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(1))).thenReturn(Optional.of(user));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+
+        assertFalse(accessService.isUserCanBeRemovedFromDepartment(1, 1));
+    }
+
+    @Test
+    void testThatUserWithDisabledCompanyCantBeRemovedFromDepartment() {
+
+        final Company company = new MockCompanyBuilder(1).disabled().build();
+        final User user = new MockUserBuilder(1).company(company).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(owner).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(1))).thenReturn(Optional.of(user));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+
+        assertFalse(accessService.isUserCanBeRemovedFromDepartment(1, 1));
+    }
+
+    @Test
+    void testThatUserFromAnotherCompanyCantBeRemovedFromDepartment() {
+
+        final Company company = new MockCompanyBuilder(1).build();
+        final Company userCompany = new MockCompanyBuilder(2).build();
+        final User user = new MockUserBuilder(1).company(userCompany).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(owner).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(1))).thenReturn(Optional.of(user));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+
+        assertFalse(accessService.isUserCanBeRemovedFromDepartment(1, 1));
+    }
+
+    @Test
+    void testThatUserCanBeRemovedFromDepartmentWithoutOwner() {
+
+        final Company company = new MockCompanyBuilder(1).build();
+        final User user = new MockUserBuilder(1).company(company).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(1))).thenReturn(Optional.of(user));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+
+        assertTrue(accessService.isUserCanBeRemovedFromDepartment(1, 1));
+    }
+
+    @Test
+    void testThatOwnerCantBeRemovedFromDepartment() {
+
+        final Company company = new MockCompanyBuilder(1).build();
+        final User owner = new MockUserBuilder(2).company(company).build();
+        final Department department = new MockDepartmentBuilder(1, company).owner(owner).build();
+
+        when(departmentService.find(eq(1))).thenReturn(Optional.of(department));
+        when(userService.find(eq(2))).thenReturn(Optional.of(owner));
+
+        assertFalse(accessService.isUserCanBeRemovedFromDepartment(2, 1));
+    }
+
 }

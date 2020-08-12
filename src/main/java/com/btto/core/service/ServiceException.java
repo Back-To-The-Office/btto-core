@@ -12,6 +12,6 @@ public class ServiceException extends RuntimeException {
     }
 
     public enum Type {
-        NOT_FOUND, WRONG_OLD_PASSWORD, ALREADY_EXISTS
+        NOT_FOUND, WRONG_OLD_PASSWORD, ALREADY_EXISTS, INVALID_STATE
     }
 }
