@@ -36,7 +36,7 @@ public class DepartmentController extends ApiV1AbstractController {
         this.departmentService = companyService;
     }
 
-    @GetMapping("/departments/{departmentId}}")
+    @GetMapping("/departments/{departmentId}")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.OK)
     public DepartmentResponse get(@ApiIgnore @CurrentUser final User currentUser, @PathVariable final Integer departmentId) {
