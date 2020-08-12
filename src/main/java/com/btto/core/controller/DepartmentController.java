@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 
@@ -38,7 +39,7 @@ public class DepartmentController extends ApiV1AbstractController {
     @GetMapping("/departments/{departmentId}}")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.OK)
-    public DepartmentResponse get(@CurrentUser final User currentUser, @PathVariable final Integer departmentId) {
+    public DepartmentResponse get(@ApiIgnore @CurrentUser final User currentUser, @PathVariable final Integer departmentId) {
         if (!accessService.hasDepartmentRight(currentUser, null, AccessService.DepartmentRight.VIEW)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to view a department", HttpStatus.FORBIDDEN);
         }
@@ -51,7 +52,7 @@ public class DepartmentController extends ApiV1AbstractController {
     @PostMapping("/departments/create")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@CurrentUser final User currentUser, @Valid @RequestBody CreateDepartmentRequest request) {
+    public void create(@ApiIgnore @CurrentUser final User currentUser, @Valid @RequestBody CreateDepartmentRequest request) {
         if (!accessService.hasDepartmentRight(currentUser, null, AccessService.DepartmentRight.CREATE)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to create a department", HttpStatus.FORBIDDEN);
         }
@@ -61,7 +62,7 @@ public class DepartmentController extends ApiV1AbstractController {
     @DeleteMapping("/departments/{departmentId}")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.OK)
-    public void delete(@CurrentUser User currentUser, @PathVariable final Integer departmentId) {
+    public void delete(@ApiIgnore @CurrentUser User currentUser, @PathVariable final Integer departmentId) {
         if (!accessService.hasDepartmentRight(currentUser, departmentId, AccessService.DepartmentRight.REMOVE)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to delete department with id " + departmentId, HttpStatus.FORBIDDEN);
         }
@@ -71,7 +72,7 @@ public class DepartmentController extends ApiV1AbstractController {
     @PostMapping("/departments/edit/{departmentId}")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.OK)
-    public DepartmentResponse edit(@CurrentUser final User currentUser,
+    public DepartmentResponse edit(@ApiIgnore @CurrentUser final User currentUser,
                                    @PathVariable final Integer departmentId,
                                    @Valid @RequestBody final EditDepartmentRequest request) {
         if (!accessService.hasDepartmentRight(currentUser, departmentId, AccessService.DepartmentRight.EDIT)) {
@@ -84,7 +85,7 @@ public class DepartmentController extends ApiV1AbstractController {
     @PostMapping("/departments/assign/{departmentId}")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.OK)
-    public DepartmentResponse assign(@CurrentUser final User currentUser,
+    public DepartmentResponse assign(@ApiIgnore @CurrentUser final User currentUser,
                                      @PathVariable final Integer departmentId,
                                      @Valid @RequestBody final AssignDepartmentRequest request) {
         if (!accessService.hasDepartmentRight(currentUser, departmentId, AccessService.DepartmentRight.ASSIGN)) {
@@ -97,7 +98,7 @@ public class DepartmentController extends ApiV1AbstractController {
     @PostMapping("/departments/{departmentId}/add/")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.OK)
-    public void addParticipant(@CurrentUser final User currentUser,
+    public void addParticipant(@ApiIgnore @CurrentUser final User currentUser,
                                @PathVariable final Integer departmentId,
                                @Valid @RequestBody final AddParticipantToDepartmentRequest request) {
         if (accessService.hasDepartmentRight(currentUser, departmentId, AccessService.DepartmentRight.ADD_PARTICIPANT)) {
@@ -113,7 +114,7 @@ public class DepartmentController extends ApiV1AbstractController {
     @PostMapping("/departments/{departmentId}/remove/")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.OK)
-    public void removeParticipant(@CurrentUser final User currentUser,
+    public void removeParticipant(@ApiIgnore @CurrentUser final User currentUser,
                                @PathVariable final Integer departmentId,
                                @Valid @RequestBody final AddParticipantToDepartmentRequest request) {
         if (accessService.hasDepartmentRight(currentUser, departmentId, AccessService.DepartmentRight.ADD_PARTICIPANT)) {
