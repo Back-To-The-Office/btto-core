@@ -2,12 +2,13 @@ package com.btto.core.controller.model;
 
 import com.btto.core.domain.Department;
 import com.google.common.collect.ImmutableSet;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.Set;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Getter
+@AllArgsConstructor
 public class DepartmentResponse {
     private final int id;
     private final int companyId;
