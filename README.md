@@ -17,7 +17,7 @@ curl --location --request POST 'https://${BTTO_HOST}/api/v1/users/register' \
 To get user token use this:
 
 ```
-curl --location --request POST '${CLIENT_ID}:${CLIENT_SECRET}@${BTTO_HOST}/oauth/token' \
+curl --location --request POST 'https://${CLIENT_ID}:${CLIENT_SECRET}@${BTTO_HOST}/oauth/token' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --data-urlencode 'grant_type=password' \
 --data-urlencode 'username=test@test.com' \
