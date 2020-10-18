@@ -12,12 +12,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class TestUserDetailsServiceImpl {
+class UserDetailsServiceImplTest {
 
     private final UserService userService = mock(UserService.class);
     private final AccessService accessService = mock(AccessService.class);

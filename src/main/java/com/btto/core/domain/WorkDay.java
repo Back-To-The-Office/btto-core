@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import java.time.Instant;
+import java.time.LocalDate;
 
 @NoArgsConstructor
 @Getter
@@ -24,6 +25,9 @@ public class WorkDay {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="owner", nullable = false)
     private User owner;
-    private Instant workDate;
-    private Long durationSec;
+    private LocalDate startDate;
+    private Instant startDateTime;
+    private Instant endDateTime;
+    private long timezoneOffset;
+    private int daySequenceNum;
 }
