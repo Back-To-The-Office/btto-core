@@ -23,7 +23,7 @@ class UserDetailsServiceImplTest {
     private final UserService userService = mock(UserService.class);
     private final AccessService accessService = mock(AccessService.class);
 
-    private UserDetailsServiceImpl userDetailsService = new UserDetailsServiceImpl(userService, accessService);
+    private final UserDetailsServiceImpl userDetailsService = new UserDetailsServiceImpl(userService, accessService);
 
     @Test
     void loadUserByUsername() {

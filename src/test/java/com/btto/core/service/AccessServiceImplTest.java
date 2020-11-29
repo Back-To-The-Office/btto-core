@@ -776,27 +776,27 @@ class AccessServiceImplTest {
     }
 
     @ParameterizedTest
-    @EnumSource(AccessService.WorkDayRight.class)
-    void testThatAdminWithoutCompanyCantDoAnythingWithWorkDay(final AccessService.WorkDayRight right) {
+    @EnumSource(AccessService.WorkSessionRight.class)
+    void testThatAdminWithoutCompanyCantDoAnythingWithWorkDay(final AccessService.WorkSessionRight right) {
         final User admin = new MockUserBuilder(1).role(Role.Admin).build();
-        assertFalse(accessService.hasWorkDayRight(admin, null, right));
+        assertFalse(accessService.hasWorkSessionRight(admin, null, right));
     }
 
     @ParameterizedTest
-    @EnumSource(AccessService.WorkDayRight.class)
-    void testThatAdminCantDoAnythingWithWorkDayOfUserWithoutCompany(final AccessService.WorkDayRight right) {
+    @EnumSource(AccessService.WorkSessionRight.class)
+    void testThatAdminCantDoAnythingWithWorkDayOfUserWithoutCompany(final AccessService.WorkSessionRight right) {
         final Company company = new MockCompanyBuilder(1).build();
         final User admin = new MockUserBuilder(1).company(company).role(Role.Admin).build();
         final User user = new MockUserBuilder(2).build();
 
         when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
 
-        assertFalse(accessService.hasWorkDayRight(admin, user.getId(), right));
+        assertFalse(accessService.hasWorkSessionRight(admin, user.getId(), right));
     }
 
     @ParameterizedTest
-    @EnumSource(AccessService.WorkDayRight.class)
-    void testThatAdminCantDoAnythingWithWorkDayOfUserWithAnotherCompany(final AccessService.WorkDayRight right) {
+    @EnumSource(AccessService.WorkSessionRight.class)
+    void testThatAdminCantDoAnythingWithWorkDayOfUserWithAnotherCompany(final AccessService.WorkSessionRight right) {
         final Company adminCompany = new MockCompanyBuilder(1).build();
         final Company userCompany = new MockCompanyBuilder(2).build();
         final User admin = new MockUserBuilder(1).company(adminCompany).role(Role.Admin).build();
@@ -804,19 +804,19 @@ class AccessServiceImplTest {
 
         when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
 
-        assertFalse(accessService.hasWorkDayRight(admin, user.getId(), right));
+        assertFalse(accessService.hasWorkSessionRight(admin, user.getId(), right));
     }
 
     @ParameterizedTest
-    @EnumSource(AccessService.WorkDayRight.class)
-    void testThatAdminCantDoAnythingWithWorkDayOfUserIdCompanyDisabled(final AccessService.WorkDayRight right) {
+    @EnumSource(AccessService.WorkSessionRight.class)
+    void testThatAdminCantDoAnythingWithWorkDayOfUserIdCompanyDisabled(final AccessService.WorkSessionRight right) {
         final Company company = new MockCompanyBuilder(1).disabled().build();
         final User admin = new MockUserBuilder(1).company(company).role(Role.Admin).build();
         final User user = new MockUserBuilder(2).company(company).build();
 
         when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
 
-        assertFalse(accessService.hasWorkDayRight(admin, user.getId(), right));
+        assertFalse(accessService.hasWorkSessionRight(admin, user.getId(), right));
     }
 
     @Test
@@ -827,7 +827,7 @@ class AccessServiceImplTest {
 
         when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
 
-        assertTrue(accessService.hasWorkDayRight(admin, user.getId(), AccessService.WorkDayRight.VIEW));
+        assertTrue(accessService.hasWorkSessionRight(admin, user.getId(), AccessService.WorkSessionRight.VIEW));
     }
 
     @Test
@@ -839,7 +839,7 @@ class AccessServiceImplTest {
         when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
         when(relationService.isManager(eq(manager), eq(user))).thenReturn(true);
 
-        assertTrue(accessService.hasWorkDayRight(manager, user.getId(), AccessService.WorkDayRight.VIEW));
+        assertTrue(accessService.hasWorkSessionRight(manager, user.getId(), AccessService.WorkSessionRight.VIEW));
     }
 
     @Test
@@ -851,7 +851,7 @@ class AccessServiceImplTest {
         when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
         when(relationService.isManager(eq(manager), eq(user))).thenReturn(false);
 
-        assertFalse(accessService.hasWorkDayRight(manager, user.getId(), AccessService.WorkDayRight.VIEW));
+        assertFalse(accessService.hasWorkSessionRight(manager, user.getId(), AccessService.WorkSessionRight.VIEW));
     }
 
     @Test
@@ -861,7 +861,7 @@ class AccessServiceImplTest {
 
         when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
 
-        assertTrue(accessService.hasWorkDayRight(user, user.getId(), AccessService.WorkDayRight.VIEW));
+        assertTrue(accessService.hasWorkSessionRight(user, user.getId(), AccessService.WorkSessionRight.VIEW));
     }
 
     @Test
@@ -872,22 +872,22 @@ class AccessServiceImplTest {
 
         when(userService.find(eq(user2.getId()))).thenReturn(Optional.of(user2));
 
-        assertFalse(accessService.hasWorkDayRight(user1, user2.getId(), AccessService.WorkDayRight.VIEW));
+        assertFalse(accessService.hasWorkSessionRight(user1, user2.getId(), AccessService.WorkSessionRight.VIEW));
     }
 
     @Test
-    void testThatAdminCanSubtractTimeOfUserWorkDay() {
+    void testThatAdminCanCreateUserWorkDay() {
         final Company company = new MockCompanyBuilder(1).build();
         final User admin = new MockUserBuilder(1).company(company).role(Role.Admin).build();
         final User user = new MockUserBuilder(2).company(company).build();
 
         when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
 
-        assertTrue(accessService.hasWorkDayRight(admin, user.getId(), AccessService.WorkDayRight.SUBTRACT_TIME));
+        assertTrue(accessService.hasWorkSessionRight(admin, user.getId(), AccessService.WorkSessionRight.CREATE));
     }
 
     @Test
-    void testThatManagerCanSubtractTimeOfItsUserWorkDay() {
+    void testThatManagerCanCreateItsUserWorkDay() {
         final Company company = new MockCompanyBuilder(1).build();
         final User manager = new MockUserBuilder(1).company(company).role(Role.Manager).build();
         final User user = new MockUserBuilder(2).company(company).build();
@@ -895,11 +895,11 @@ class AccessServiceImplTest {
         when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
         when(relationService.isManager(eq(manager), eq(user))).thenReturn(true);
 
-        assertTrue(accessService.hasWorkDayRight(manager, user.getId(), AccessService.WorkDayRight.SUBTRACT_TIME));
+        assertTrue(accessService.hasWorkSessionRight(manager, user.getId(), AccessService.WorkSessionRight.CREATE));
     }
 
     @Test
-    void testThatManagerCantSubtractTimeOfOtherUserWorkDay() {
+    void testThatManagerCantCreateOtherUserWorkDay() {
         final Company company = new MockCompanyBuilder(1).build();
         final User manager = new MockUserBuilder(1).company(company).role(Role.Manager).build();
         final User user = new MockUserBuilder(2).company(company).build();
@@ -907,53 +907,43 @@ class AccessServiceImplTest {
         when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
         when(relationService.isManager(eq(manager), eq(user))).thenReturn(false);
 
-        assertFalse(accessService.hasWorkDayRight(manager, user.getId(), AccessService.WorkDayRight.SUBTRACT_TIME));
+        assertFalse(accessService.hasWorkSessionRight(manager, user.getId(), AccessService.WorkSessionRight.CREATE));
     }
 
     @Test
-    void testThatUserCanSubtractTimeOfOwnWorkDay() {
+    void testThatUserCanCreateOwnWorkDay() {
         final Company company = new MockCompanyBuilder(1).build();
         final User user = new MockUserBuilder(1).company(company).build();
 
         when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
 
-        assertTrue(accessService.hasWorkDayRight(user, user.getId(), AccessService.WorkDayRight.SUBTRACT_TIME));
+        assertTrue(accessService.hasWorkSessionRight(user, user.getId(), AccessService.WorkSessionRight.CREATE));
     }
 
     @Test
-    void testThatUserCantSubtractTimeOfOtherWorkDay() {
+    void testThatUserCantCreateOtherWorkDay() {
         final Company company = new MockCompanyBuilder(1).build();
         final User user1 = new MockUserBuilder(1).company(company).build();
         final User user2 = new MockUserBuilder(2).company(company).build();
 
         when(userService.find(eq(user2.getId()))).thenReturn(Optional.of(user2));
 
-        assertFalse(accessService.hasWorkDayRight(user1, user2.getId(), AccessService.WorkDayRight.SUBTRACT_TIME));
+        assertFalse(accessService.hasWorkSessionRight(user1, user2.getId(), AccessService.WorkSessionRight.CREATE));
     }
 
     @Test
-    void testThatUserCantAddTimeToItsWorkDay() {
-        final Company company = new MockCompanyBuilder(1).build();
-        final User user = new MockUserBuilder(1).company(company).build();
-
-        when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
-
-        assertFalse(accessService.hasWorkDayRight(user, user.getId(), AccessService.WorkDayRight.ADD_TIME));
-    }
-
-    @Test
-    void testThatAdminCanAddTimeToWorkDay() {
+    void testThatAdminCanEditUserWorkDay() {
         final Company company = new MockCompanyBuilder(1).build();
         final User admin = new MockUserBuilder(1).company(company).role(Role.Admin).build();
         final User user = new MockUserBuilder(2).company(company).build();
 
         when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
 
-        assertTrue(accessService.hasWorkDayRight(admin, user.getId(), AccessService.WorkDayRight.ADD_TIME));
+        assertTrue(accessService.hasWorkSessionRight(admin, user.getId(), AccessService.WorkSessionRight.EDIT));
     }
 
     @Test
-    void testThatManagerCanAddTimeToItsUserWorkDay() {
+    void testThatManagerCanEditItsUserWorkDay() {
         final Company company = new MockCompanyBuilder(1).build();
         final User manager = new MockUserBuilder(1).company(company).role(Role.Manager).build();
         final User user = new MockUserBuilder(2).company(company).build();
@@ -961,11 +951,11 @@ class AccessServiceImplTest {
         when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
         when(relationService.isManager(eq(manager), eq(user))).thenReturn(true);
 
-        assertTrue(accessService.hasWorkDayRight(manager, user.getId(), AccessService.WorkDayRight.ADD_TIME));
+        assertTrue(accessService.hasWorkSessionRight(manager, user.getId(), AccessService.WorkSessionRight.EDIT));
     }
 
     @Test
-    void testThatManagerCantAddTimeToOtherUserWorkDay() {
+    void testThatManagerCantEditOtherUserWorkDay() {
         final Company company = new MockCompanyBuilder(1).build();
         final User manager = new MockUserBuilder(1).company(company).role(Role.Manager).build();
         final User user = new MockUserBuilder(2).company(company).build();
@@ -973,7 +963,84 @@ class AccessServiceImplTest {
         when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
         when(relationService.isManager(eq(manager), eq(user))).thenReturn(false);
 
-        assertFalse(accessService.hasWorkDayRight(manager, user.getId(), AccessService.WorkDayRight.SUBTRACT_TIME));
+        assertFalse(accessService.hasWorkSessionRight(manager, user.getId(), AccessService.WorkSessionRight.EDIT));
+    }
+
+    @Test
+    void testThatUserCanEditOwnWorkDay() {
+        final Company company = new MockCompanyBuilder(1).build();
+        final User user = new MockUserBuilder(1).company(company).build();
+
+        when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
+
+        assertTrue(accessService.hasWorkSessionRight(user, user.getId(), AccessService.WorkSessionRight.EDIT));
+    }
+
+    @Test
+    void testThatUserCantEditOtherWorkDay() {
+        final Company company = new MockCompanyBuilder(1).build();
+        final User user1 = new MockUserBuilder(1).company(company).build();
+        final User user2 = new MockUserBuilder(2).company(company).build();
+
+        when(userService.find(eq(user2.getId()))).thenReturn(Optional.of(user2));
+
+        assertFalse(accessService.hasWorkSessionRight(user1, user2.getId(), AccessService.WorkSessionRight.EDIT));
+    }
+
+    @Test
+    void testThatAdminCanDeleteUserWorkDay() {
+        final Company company = new MockCompanyBuilder(1).build();
+        final User admin = new MockUserBuilder(1).company(company).role(Role.Admin).build();
+        final User user = new MockUserBuilder(2).company(company).build();
+
+        when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
+
+        assertTrue(accessService.hasWorkSessionRight(admin, user.getId(), AccessService.WorkSessionRight.DELETE));
+    }
+
+    @Test
+    void testThatManagerCanDeleteItsUserWorkDay() {
+        final Company company = new MockCompanyBuilder(1).build();
+        final User manager = new MockUserBuilder(1).company(company).role(Role.Manager).build();
+        final User user = new MockUserBuilder(2).company(company).build();
+
+        when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
+        when(relationService.isManager(eq(manager), eq(user))).thenReturn(true);
+
+        assertTrue(accessService.hasWorkSessionRight(manager, user.getId(), AccessService.WorkSessionRight.DELETE));
+    }
+
+    @Test
+    void testThatManagerCantDeleteOtherUserWorkDay() {
+        final Company company = new MockCompanyBuilder(1).build();
+        final User manager = new MockUserBuilder(1).company(company).role(Role.Manager).build();
+        final User user = new MockUserBuilder(2).company(company).build();
+
+        when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
+        when(relationService.isManager(eq(manager), eq(user))).thenReturn(false);
+
+        assertFalse(accessService.hasWorkSessionRight(manager, user.getId(), AccessService.WorkSessionRight.DELETE));
+    }
+
+    @Test
+    void testThatUserCanDeleteOwnWorkDay() {
+        final Company company = new MockCompanyBuilder(1).build();
+        final User user = new MockUserBuilder(1).company(company).build();
+
+        when(userService.find(eq(user.getId()))).thenReturn(Optional.of(user));
+
+        assertTrue(accessService.hasWorkSessionRight(user, user.getId(), AccessService.WorkSessionRight.DELETE));
+    }
+
+    @Test
+    void testThatUserCantDeleteOtherWorkDay() {
+        final Company company = new MockCompanyBuilder(1).build();
+        final User user1 = new MockUserBuilder(1).company(company).build();
+        final User user2 = new MockUserBuilder(2).company(company).build();
+
+        when(userService.find(eq(user2.getId()))).thenReturn(Optional.of(user2));
+
+        assertFalse(accessService.hasWorkSessionRight(user1, user2.getId(), AccessService.WorkSessionRight.DELETE));
     }
 
     @Test

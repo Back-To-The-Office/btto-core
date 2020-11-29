@@ -1,5 +1,6 @@
 package com.btto.core.dao;
 
+import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
@@ -16,6 +17,7 @@ public abstract class AbstractJpaDaoImpl<T> implements AbstractJpaDao<T> {
     }
 
     @Override
+    @Nullable
     public T findOne(final int id){
         return entityManager.find( clazz, id );
     }
