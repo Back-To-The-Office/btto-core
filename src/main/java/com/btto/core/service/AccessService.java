@@ -12,7 +12,7 @@ public interface AccessService {
 
     boolean hasDepartmentRight(User currentUser, @Nullable Integer departmentId, DepartmentRight departmentRight);
 
-    boolean hasWorkDayRight(User currentUser, Integer ownerId, WorkDayRight workDayRight);
+    boolean hasWorkSessionRight(User currentUser, Integer ownerId, WorkSessionRight workSessionRight);
 
     boolean isUserCanBeAddedToDepartment(Integer userId, Integer departmentId);
 
@@ -30,7 +30,7 @@ public interface AccessService {
         CREATE, REMOVE, VIEW, EDIT, ADD_PARTICIPANT, ASSIGN
     }
 
-    enum WorkDayRight {
-        VIEW, ADD_TIME, SUBTRACT_TIME
+    enum WorkSessionRight {
+        CREATE ,VIEW, EDIT, DELETE
     }
 }

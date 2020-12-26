@@ -180,7 +180,7 @@ public class AccessServiceImpl implements AccessService {
 
     @Override
     @Transactional
-    public boolean hasWorkDayRight(final User currentUser, final Integer ownerId, final WorkDayRight workDayRight) {
+    public boolean hasWorkSessionRight(final User currentUser, final Integer ownerId, final WorkSessionRight workSessionRight) {
         if (!currentUser.getCompany().isPresent() || !currentUser.getCompany().get().isEnabled()) {
             return false;
         }
@@ -189,15 +189,12 @@ public class AccessServiceImpl implements AccessService {
             return false;
         }
 
-        switch (workDayRight) {
+        switch (workSessionRight) {
+            case CREATE:
             case VIEW:
-            case SUBTRACT_TIME:
+            case DELETE:
+            case EDIT:
                 if (hasAdminRights(currentUser) || currentUser.getId().equals(ownerId) || relationService.isManager(currentUser, owner)) {
-                    return true;
-                }
-                break;
-            case ADD_TIME:
-                if (hasAdminRights(currentUser) || relationService.isManager(currentUser, owner)) {
                     return true;
                 }
                 break;

@@ -54,7 +54,7 @@ public class User {
     @OneToMany(mappedBy = "participant", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<Participant> participants;
     @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    private Set<WorkDay> workDays;
+    private Set<WorkSession> workSessions;
     private Instant lastUpdate;
     @Length(min = 3, max = 255)
     private String deactivatedEmail;

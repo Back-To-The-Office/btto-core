@@ -6,6 +6,7 @@ import com.btto.core.domain.User;
 import com.btto.core.domain.enums.Role;
 import com.google.common.collect.ImmutableSet;
 
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ public class MockUserBuilder {
     private Set<Department> departments = null;
     private String email = null;
     private String password = null;
+    private ZoneId timezone = null;
 
     public MockUserBuilder(final Integer id) {
         this.id = id;
@@ -53,6 +55,11 @@ public class MockUserBuilder {
         return this;
     }
 
+    public MockUserBuilder timezone(final ZoneId timezone) {
+        this.timezone = timezone;
+        return this;
+    }
+
     public User build() {
         final User user = mock(User.class);
         when(user.getId()).thenReturn(id);
@@ -72,6 +79,9 @@ public class MockUserBuilder {
         }
         if (password != null) {
             when(user.getPassword()).thenReturn(password);
+        }
+        if (timezone != null) {
+            when(user.getTimezone()).thenReturn(timezone);
         }
         return user;
     }
