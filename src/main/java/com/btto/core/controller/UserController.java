@@ -69,6 +69,16 @@ public class UserController extends ApiV1AbstractController {
                 .orElseThrow(() -> new ApiException("Can't find user with id " + userId, HttpStatus.GONE)));
     }
 
+    @GetMapping("/users/current")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse getCurrent(@ApiIgnore @CurrentUser final User user) {
+        if (user == null) {
+            throw new ApiException("No current user", HttpStatus.FORBIDDEN);
+        }
+        return UserResponse.fromUserDomain(user);
+    }
+
     @PostMapping("/users/create")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.CREATED)
