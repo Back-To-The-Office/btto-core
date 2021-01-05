@@ -41,6 +41,9 @@ public class UserController extends ApiV1AbstractController {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse register(@Valid @RequestBody final RegisterUserRequest request) {
+        if (userService.isExists(request.getEmail())) {
+            throw new ApiException("User with email " + request.getEmail() + " already exists", HttpStatus.CONFLICT);
+        }
         userService.create(
                 request.getEmail(),
                 request.getPassword(),

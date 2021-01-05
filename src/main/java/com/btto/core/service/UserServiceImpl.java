@@ -110,6 +110,12 @@ public class UserServiceImpl extends AbstractEntityServiceImpl<User, UserDao> im
         return dao.update(user);
     }
 
+    @Override
+    @Transactional
+    public boolean isExists(final String email) {
+        return dao.getUserByEmail(email).size() > 0;
+    }
+
     private static <T> void doIfNotNull(@Nullable final T data, final Consumer<T> action) {
         if (data != null) {
             action.accept(data);

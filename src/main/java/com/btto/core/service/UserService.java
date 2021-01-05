@@ -3,6 +3,7 @@ package com.btto.core.service;
 import com.btto.core.domain.Company;
 import com.btto.core.domain.User;
 import com.btto.core.domain.enums.Role;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
 import java.time.ZoneId;
@@ -19,4 +20,7 @@ public interface UserService extends AbstractEntityService<User> {
 
     User update(Integer userId, @Nullable String oldPassword, @Nullable String newPassword, @Nullable String firstName,
                 @Nullable String lastName, @Nullable ZoneId timezone, @Nullable Role role, @Nullable final String position);
+
+    @Transactional
+    boolean isExists(String email);
 }
