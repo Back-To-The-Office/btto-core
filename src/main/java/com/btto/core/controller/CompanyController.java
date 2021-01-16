@@ -2,6 +2,7 @@ package com.btto.core.controller;
 
 import com.btto.core.controller.model.CompanyResponse;
 import com.btto.core.controller.model.CreateCompanyRequest;
+import com.btto.core.controller.model.CreateEntityResponse;
 import com.btto.core.controller.model.EditCompanyRequest;
 import com.btto.core.domain.User;
 import com.btto.core.service.AccessService;
@@ -50,11 +51,11 @@ public class CompanyController extends ApiV1AbstractController {
     @PostMapping("/companies/create")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@ApiIgnore @CurrentUser final User currentUser, @Valid @RequestBody final CreateCompanyRequest request) {
+    public CreateEntityResponse create(@ApiIgnore @CurrentUser final User currentUser, @Valid @RequestBody final CreateCompanyRequest request) {
         if (!accessService.hasCompanyRight(currentUser, null, AccessService.CompanyRight.CREATE)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to create a company", HttpStatus.FORBIDDEN);
         }
-        companyService.create(request.getName(), currentUser);
+        return new CreateEntityResponse(companyService.create(request.getName(), currentUser));
     }
 
     @DeleteMapping("/companies/{companyId}")

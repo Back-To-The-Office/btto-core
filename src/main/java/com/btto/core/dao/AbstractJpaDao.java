@@ -7,7 +7,7 @@ public interface AbstractJpaDao<T> {
 
     T update(T entity);
 
-    void create(T entity);
+    Integer create(T entity);
 
     T findOne(int id);
 

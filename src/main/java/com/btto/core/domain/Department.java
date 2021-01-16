@@ -21,7 +21,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-public class Department {
+public class Department implements EntityWithId {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Integer id;

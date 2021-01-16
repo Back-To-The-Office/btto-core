@@ -1,5 +1,6 @@
 package com.btto.core.controller;
 
+import com.btto.core.controller.model.CreateEntityResponse;
 import com.btto.core.controller.model.CreateUserRequest;
 import com.btto.core.controller.model.EditUserRequest;
 import com.btto.core.controller.model.RegisterUserRequest;
@@ -85,11 +86,11 @@ public class UserController extends ApiV1AbstractController {
     @PostMapping("/users/create")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@ApiIgnore @CurrentUser User currentUser, @Valid @RequestBody CreateUserRequest request) {
+    public CreateEntityResponse create(@ApiIgnore @CurrentUser User currentUser, @Valid @RequestBody CreateUserRequest request) {
         if (!accessService.hasUserRight(currentUser, null, AccessService.UserRight.CREATE)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to create a user", HttpStatus.FORBIDDEN);
         }
-        userService.create(
+        return new CreateEntityResponse(userService.create(
                 request.getEmail(),
                 request.getPassword(),
                 request.getFirstName(),
@@ -97,8 +98,7 @@ public class UserController extends ApiV1AbstractController {
                 request.getRole().getDomainRole(),
                 currentUser.getCompany().orElseThrow(() -> new ApiException("User without company can't create a user")),
                 request.getTimezone(),
-                request.getPosition()
-        );
+                request.getPosition()));
     }
 
     @DeleteMapping("/users/{userId}")

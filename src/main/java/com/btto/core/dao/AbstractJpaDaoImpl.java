@@ -1,12 +1,14 @@
 package com.btto.core.dao;
 
+import com.btto.core.domain.EntityWithId;
+
 import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
 
 @SuppressWarnings("WeakerAccess")
-public abstract class AbstractJpaDaoImpl<T> implements AbstractJpaDao<T> {
+public abstract class AbstractJpaDaoImpl<T extends EntityWithId> implements AbstractJpaDao<T> {
     private final Class<T> clazz;
 
     @PersistenceContext
@@ -29,8 +31,10 @@ public abstract class AbstractJpaDaoImpl<T> implements AbstractJpaDao<T> {
     }
 
     @Override
-    public void create(T entity){
+    public Integer create(T entity){
         entityManager.persist(entity);
+        entityManager.flush();
+        return entity.getId();
     }
 
     @Override

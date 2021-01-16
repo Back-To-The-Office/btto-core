@@ -434,6 +434,16 @@ class AccessServiceImplTest {
     }
 
     @Test
+    void testThatUserCantViewDepartmentsOfOwnCompany() {
+        final Company userCompany = new MockCompanyBuilder(1).build();
+        final Company departmentCompany = new MockCompanyBuilder(2).build();
+        final User user = new MockUserBuilder(1).company(userCompany).build();
+        final Department department = new MockDepartmentBuilder(1, departmentCompany).build();
+
+        assertFalse(accessService.hasDepartmentRight(user, department.getId(), AccessService.DepartmentRight.VIEW_ALL));
+    }
+
+    @Test
     void testThatAdminCantEditDepartmentWithAnotherCompany() {
         final Company adminCompany = new MockCompanyBuilder(1).build();
         final Company departmentCompany = new MockCompanyBuilder(2).build();

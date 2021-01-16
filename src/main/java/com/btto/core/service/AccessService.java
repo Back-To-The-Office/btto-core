@@ -27,7 +27,7 @@ public interface AccessService {
     }
 
     enum DepartmentRight {
-        CREATE, REMOVE, VIEW, EDIT, ADD_PARTICIPANT, ASSIGN
+        CREATE, REMOVE, VIEW, VIEW_ALL, EDIT, ADD_PARTICIPANT, ASSIGN
     }
 
     enum WorkSessionRight {

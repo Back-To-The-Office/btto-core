@@ -31,7 +31,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "Users")
-public class User {
+public class User implements EntityWithId {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Integer id;
@@ -46,7 +46,7 @@ public class User {
     private String contacts;
     @Enumerated(EnumType.STRING)
     private Role role;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "company_id")
     private Company company;
     @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)

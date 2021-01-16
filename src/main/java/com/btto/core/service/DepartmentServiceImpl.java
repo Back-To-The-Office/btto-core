@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,7 +30,7 @@ public class DepartmentServiceImpl extends AbstractEntityServiceImpl<Department,
 
     @Override
     @Transactional
-    public void create(final String name, final User creator) {
+    public Integer create(final String name, final User creator) {
         final Company company = creator.getCompany()
                 .orElseThrow(() -> new ServiceException(
                         "User " + creator.getId() + " doesn't have a company",
@@ -40,13 +41,15 @@ public class DepartmentServiceImpl extends AbstractEntityServiceImpl<Department,
         department.setCompany(company);
         department.setOwner(creator);
         department.setName(name);
-        dao.create(department);
+        Integer id = dao.create(department);
 
         final Participant participant = new Participant();
         participant.setDepartment(department);
         participant.setParticipant(creator);
 
         participantDao.create(participant);
+
+        return id;
     }
 
     @Override
@@ -102,6 +105,15 @@ public class DepartmentServiceImpl extends AbstractEntityServiceImpl<Department,
                         ServiceException.Type.NOT_FOUND));
 
         participantDao.delete(participant);
+    }
+
+    @Override
+    @Transactional
+    public List<Department> getUserCompanyDepartments(final User user) {
+        final Company company = user.getCompany()
+            .orElseThrow(() -> new ServiceException("The user has empty company", ServiceException.Type.INVALID_STATE));
+
+        return dao.getCompanyDepartments(company);
     }
 
 

@@ -34,7 +34,7 @@ public class UserServiceImpl extends AbstractEntityServiceImpl<User, UserDao> im
 
     @Override
     @Transactional
-    public void create(
+    public Integer create(
             final String email,
             final String password,
             final String firstName,
@@ -57,7 +57,7 @@ public class UserServiceImpl extends AbstractEntityServiceImpl<User, UserDao> im
         user.setTimezone(timezone);
         user.setPosition(position);
 
-        dao.create(user);
+        return dao.create(user);
     }
 
     @Override
