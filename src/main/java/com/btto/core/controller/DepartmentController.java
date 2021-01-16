@@ -53,7 +53,7 @@ public class DepartmentController extends ApiV1AbstractController {
     }
 
     @GetMapping("/departments")
-    @Transactional//(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.OK)
     public List<DepartmentResponse> getAllDepartments(@ApiIgnore @CurrentUser final User currentUser) {
         if (!accessService.hasDepartmentRight(currentUser, null, AccessService.DepartmentRight.VIEW_ALL)) {

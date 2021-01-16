@@ -80,7 +80,10 @@ public class UserController extends ApiV1AbstractController {
         if (user == null) {
             throw new ApiException("No current user", HttpStatus.FORBIDDEN);
         }
-        return UserResponse.fromUserDomain(user);
+        // we should request user data again to initialize departments proxy
+        final User currentUser = userService.find(user.getId()).orElseThrow(
+            () -> new ApiException("User has been deleted", HttpStatus.NOT_FOUND));
+        return UserResponse.fromUserDomain(currentUser);
     }
 
     @PostMapping("/users/create")
@@ -94,7 +97,7 @@ public class UserController extends ApiV1AbstractController {
                 request.getEmail(),
                 request.getPassword(),
                 request.getFirstName(),
-                request. getLastName(),
+                request.getLastName(),
                 request.getRole().getDomainRole(),
                 currentUser.getCompany().orElseThrow(() -> new ApiException("User without company can't create a user")),
                 request.getTimezone(),
