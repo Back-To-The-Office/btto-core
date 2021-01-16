@@ -1,14 +1,18 @@
 package com.btto.core.controller;
 
+import com.btto.core.controller.model.CompanyUsersResponse;
+import com.btto.core.controller.model.CreateEntityResponse;
 import com.btto.core.controller.model.CreateUserRequest;
 import com.btto.core.controller.model.EditUserRequest;
 import com.btto.core.controller.model.RegisterUserRequest;
 import com.btto.core.controller.model.UserResponse;
+import com.btto.core.domain.Company;
 import com.btto.core.domain.User;
 import com.btto.core.domain.enums.Role;
 import com.btto.core.service.AccessService;
 import com.btto.core.service.UserService;
 import com.btto.core.spring.CurrentUser;
+import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Propagation;
@@ -72,6 +76,24 @@ public class UserController extends ApiV1AbstractController {
                 .orElseThrow(() -> new ApiException("Can't find user with id " + userId, HttpStatus.GONE)));
     }
 
+    @GetMapping("/users")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @ResponseStatus(HttpStatus.OK)
+    public CompanyUsersResponse getUsers(@ApiIgnore @CurrentUser final User currentUser) {
+        // we should request user data again to initialize proxy
+        final User user = userService.find(currentUser.getId()).orElseThrow(
+            () -> new ApiException("User has been deleted", HttpStatus.NOT_FOUND));
+
+        final Company company = user.getCompany().orElseThrow(() -> new ApiException("User without company can't create a user"));
+        if (!accessService.hasCompanyRight(user, company.getId(), AccessService.CompanyRight.VIEW)) {
+            throw new ApiException("User " + user.getId() + " doesn't have enough rights to view the company", HttpStatus.FORBIDDEN);
+        }
+
+        return new CompanyUsersResponse(company.getUsers().stream()
+            .map(CompanyUsersResponse.User::fromUser)
+            .collect(ImmutableList.toImmutableList()));
+    }
+
     @GetMapping("/users/current")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.OK)
@@ -79,26 +101,28 @@ public class UserController extends ApiV1AbstractController {
         if (user == null) {
             throw new ApiException("No current user", HttpStatus.FORBIDDEN);
         }
-        return UserResponse.fromUserDomain(user);
+        // we should request user data again to initialize departments proxy
+        final User currentUser = userService.find(user.getId()).orElseThrow(
+            () -> new ApiException("User has been deleted", HttpStatus.NOT_FOUND));
+        return UserResponse.fromUserDomain(currentUser);
     }
 
     @PostMapping("/users/create")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@ApiIgnore @CurrentUser User currentUser, @Valid @RequestBody CreateUserRequest request) {
+    public CreateEntityResponse create(@ApiIgnore @CurrentUser User currentUser, @Valid @RequestBody CreateUserRequest request) {
         if (!accessService.hasUserRight(currentUser, null, AccessService.UserRight.CREATE)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to create a user", HttpStatus.FORBIDDEN);
         }
-        userService.create(
+        return new CreateEntityResponse(userService.create(
                 request.getEmail(),
                 request.getPassword(),
                 request.getFirstName(),
-                request. getLastName(),
+                request.getLastName(),
                 request.getRole().getDomainRole(),
                 currentUser.getCompany().orElseThrow(() -> new ApiException("User without company can't create a user")),
                 request.getTimezone(),
-                request.getPosition()
-        );
+                request.getPosition()));
     }
 
     @DeleteMapping("/users/{userId}")

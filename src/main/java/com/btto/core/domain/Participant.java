@@ -15,7 +15,7 @@ import javax.persistence.ManyToOne;
 @Getter
 @Setter
 @Entity
-public class Participant {
+public class Participant implements EntityWithId {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Integer id;

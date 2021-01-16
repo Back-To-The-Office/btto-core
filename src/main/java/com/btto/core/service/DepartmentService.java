@@ -5,10 +5,11 @@ import com.btto.core.domain.User;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public interface DepartmentService extends AbstractEntityService<Department> {
 
-    void create(String name, User creator);
+    Integer create(String name, User creator);
 
     void delete(Integer departmentId);
 
@@ -20,4 +21,7 @@ public interface DepartmentService extends AbstractEntityService<Department> {
 
     @Transactional
     void removeParticipant(Integer departmentId, Integer participantId);
+
+    @Transactional
+    List<Department> getUserCompanyDepartments(User user);
 }

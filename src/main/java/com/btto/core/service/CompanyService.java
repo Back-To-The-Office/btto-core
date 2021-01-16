@@ -6,7 +6,7 @@ import com.btto.core.domain.User;
 import javax.annotation.Nullable;
 
 public interface CompanyService extends AbstractEntityService<Company> {
-    void create(String name, User creator);
+    Integer create(String name, User creator);
 
     void delete(Integer companyId);
 

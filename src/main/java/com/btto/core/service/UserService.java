@@ -11,8 +11,8 @@ import java.util.Optional;
 
 public interface UserService extends AbstractEntityService<User> {
 
-    void create(String email, String password, String firstName, String lastName, Role role, @Nullable Company company,
-                @Nullable ZoneId timezone, @Nullable String position);
+    Integer create(String email, String password, String firstName, String lastName, Role role, @Nullable Company company,
+                   @Nullable ZoneId timezone, @Nullable String position);
 
     Optional<User> findUserByEmail(String email);
 

@@ -18,7 +18,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity(name = "work_session")
-public class WorkSession {
+public class WorkSession implements EntityWithId {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Integer id;

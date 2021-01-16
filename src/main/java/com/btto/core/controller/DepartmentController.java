@@ -3,12 +3,14 @@ package com.btto.core.controller;
 import com.btto.core.controller.model.AddParticipantToDepartmentRequest;
 import com.btto.core.controller.model.AssignDepartmentRequest;
 import com.btto.core.controller.model.CreateDepartmentRequest;
+import com.btto.core.controller.model.CreateEntityResponse;
 import com.btto.core.controller.model.DepartmentResponse;
 import com.btto.core.controller.model.EditDepartmentRequest;
 import com.btto.core.domain.User;
 import com.btto.core.service.AccessService;
 import com.btto.core.service.DepartmentService;
 import com.btto.core.spring.CurrentUser;
+import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Propagation;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 public class DepartmentController extends ApiV1AbstractController {
@@ -40,7 +43,7 @@ public class DepartmentController extends ApiV1AbstractController {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.OK)
     public DepartmentResponse get(@ApiIgnore @CurrentUser final User currentUser, @PathVariable final Integer departmentId) {
-        if (!accessService.hasDepartmentRight(currentUser, null, AccessService.DepartmentRight.VIEW)) {
+        if (!accessService.hasDepartmentRight(currentUser, departmentId, AccessService.DepartmentRight.VIEW)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to view a department", HttpStatus.FORBIDDEN);
         }
 
@@ -49,14 +52,27 @@ public class DepartmentController extends ApiV1AbstractController {
         ));
     }
 
+    @GetMapping("/departments")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @ResponseStatus(HttpStatus.OK)
+    public List<DepartmentResponse> getAllDepartments(@ApiIgnore @CurrentUser final User currentUser) {
+        if (!accessService.hasDepartmentRight(currentUser, null, AccessService.DepartmentRight.VIEW_ALL)) {
+            throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to view departments", HttpStatus.FORBIDDEN);
+        }
+
+        return departmentService.getUserCompanyDepartments(currentUser).stream()
+            .map(DepartmentResponse::fromDepartmentDomain)
+            .collect(ImmutableList.toImmutableList());
+    }
+
     @PostMapping("/departments/create")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@ApiIgnore @CurrentUser final User currentUser, @Valid @RequestBody CreateDepartmentRequest request) {
+    public CreateEntityResponse create(@ApiIgnore @CurrentUser final User currentUser, @Valid @RequestBody CreateDepartmentRequest request) {
         if (!accessService.hasDepartmentRight(currentUser, null, AccessService.DepartmentRight.CREATE)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to create a department", HttpStatus.FORBIDDEN);
         }
-        departmentService.create(request.getName(), currentUser);
+        return new CreateEntityResponse(departmentService.create(request.getName(), currentUser));
     }
 
     @DeleteMapping("/departments/{departmentId}")

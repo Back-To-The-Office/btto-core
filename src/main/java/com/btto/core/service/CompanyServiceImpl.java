@@ -26,14 +26,17 @@ public class CompanyServiceImpl extends AbstractEntityServiceImpl<Company, Compa
 
     @Override
     @Transactional
-    public void create(final String name, final User creator) {
+    public Integer create(final String name, final User creator) {
         final Company company = new Company();
+        company.setEnabled(true);
         company.setName(name);
         company.setUsers(ImmutableSet.of(creator));
-        dao.create(company);
+        final Integer id = dao.create(company);
 
         creator.setCompany(company);
         userDao.update(creator);
+
+        return id;
     }
 
     @Override

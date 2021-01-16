@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Service
@@ -42,7 +43,7 @@ public class AccessServiceImpl implements AccessService {
     public boolean hasCompanyRight(final User currentUser, @Nullable final Integer companyId, final CompanyRight right) {
         switch (right) {
             case VIEW:
-                checkNotNull(companyId);
+                checkArgument(companyId != null);
                 if (currentUser.getCompany().isPresent()) {
                     final Company userCompany = currentUser.getCompany().get();
                     if (hasAdminRights(currentUser) || userCompany.isEnabled()) {
@@ -52,7 +53,7 @@ public class AccessServiceImpl implements AccessService {
                 break;
             case EDIT:
             case REMOVE:
-                checkNotNull(companyId);
+                checkArgument(companyId != null);
                 if (currentUser.getCompany().isPresent()) {
                     return hasAdminRights(currentUser) && currentUser.getCompany().get().getId().equals(companyId);
                 }
@@ -70,7 +71,7 @@ public class AccessServiceImpl implements AccessService {
         switch (right) {
             case GET_STATUS:
             case VIEW: {
-                checkNotNull(userId);
+                checkArgument(userId != null);
                 if (currentUser.getId().equals(userId)) {
                     return true;
                 }
@@ -84,7 +85,7 @@ public class AccessServiceImpl implements AccessService {
                 }
             } break;
             case EDIT: {
-                checkNotNull(userId);
+                checkArgument(userId != null);
                 if (currentUser.getId().equals(userId)) {
                     return true;
                 }
@@ -98,7 +99,7 @@ public class AccessServiceImpl implements AccessService {
                 }
             } break;
             case REMOVE: {
-                checkNotNull(userId);
+                checkArgument(userId != null);
                 if (currentUser.getId().equals(userId) && hasAdminRights(currentUser)) {
                     return true;
                 }
@@ -132,12 +133,14 @@ public class AccessServiceImpl implements AccessService {
 
         switch (departmentRight) {
             case VIEW: {
-                checkNotNull(departmentId);
+                checkArgument(departmentId != null);
                 return getDepartment(departmentId).getCompany().getId().equals(currentUserCompanyId);
             }
+            case VIEW_ALL:
+                return true;
             case EDIT:
             case REMOVE: {
-                checkNotNull(departmentId);
+                checkArgument(departmentId != null);
                 final Department subject = getDepartment(departmentId);
                 if (subject.getCompany().getId().equals(currentUserCompanyId)) {
                     if (hasAdminRights(currentUser)) {
@@ -150,7 +153,7 @@ public class AccessServiceImpl implements AccessService {
             case CREATE:
                 return hasManagerRights(currentUser);
             case ASSIGN: {
-                checkNotNull(departmentId);
+                checkArgument(departmentId != null);
                 final Department subject = getDepartment(departmentId);
                 if (subject.getCompany().getId().equals(currentUserCompanyId)) {
                     if (hasAdminRights(currentUser)) {
@@ -163,7 +166,7 @@ public class AccessServiceImpl implements AccessService {
                 }
             } break;
             case ADD_PARTICIPANT: {
-                checkNotNull(departmentId);
+                checkArgument(departmentId != null);
                 final Department subject = getDepartment(departmentId);
                 if (subject.getCompany().getId().equals(currentUserCompanyId)) {
                     if (hasAdminRights(currentUser)) {
