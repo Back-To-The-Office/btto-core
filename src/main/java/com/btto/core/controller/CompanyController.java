@@ -51,22 +51,6 @@ public class CompanyController extends ApiV1AbstractController {
                 .orElseThrow(() -> new ApiException("Can't find the company", HttpStatus.NOT_FOUND)));
     }
 
-    @GetMapping("/companies/{companyId}/users")
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @ResponseStatus(HttpStatus.OK)
-    public CompanyUsersResponse getUsers(@ApiIgnore @CurrentUser final User currentUser, @PathVariable final Integer companyId) {
-        if (!accessService.hasCompanyRight(currentUser, companyId, AccessService.CompanyRight.VIEW)) {
-            throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to view the company", HttpStatus.FORBIDDEN);
-        }
-
-        final Company company = companyService.find(companyId)
-            .orElseThrow(() -> new ApiException("Can't find the company", HttpStatus.NOT_FOUND));
-
-        return new CompanyUsersResponse(company.getUsers().stream()
-            .map(CompanyUsersResponse.User::fromUser)
-            .collect(ImmutableList.toImmutableList()));
-    }
-
     @PostMapping("/companies/create")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.CREATED)
