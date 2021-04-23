@@ -7,6 +7,7 @@ import com.btto.core.mock.MockUserBuilder;
 import com.google.common.collect.ImmutableSet;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -100,7 +101,7 @@ class RelationServiceImplTest {
 
         // add loop
         final Department topManagerDepartment = new MockDepartmentBuilder(5, null).owner(user).build();
-        when(managers[0].getDepartments()).thenReturn(ImmutableSet.of(topManagerDepartment));
+        when(managers[0].getDepartments()).thenReturn(Optional.of(ImmutableSet.of(topManagerDepartment)));
 
         assertTrue(relationService.isManager(managers[0], user));
         assertTrue(relationService.isManager(managers[1], user));
@@ -129,7 +130,7 @@ class RelationServiceImplTest {
 
         // add loop
         final Department topManagerDepartment = new MockDepartmentBuilder(5, null).owner(user).build();
-        when(managers[0].getDepartments()).thenReturn(ImmutableSet.of(topManagerDepartment));
+        when(managers[0].getDepartments()).thenReturn(Optional.of(ImmutableSet.of(topManagerDepartment)));
 
         Set<User> result = relationService.getAllManagers(user);
 

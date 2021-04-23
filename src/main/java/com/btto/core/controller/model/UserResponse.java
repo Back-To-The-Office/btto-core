@@ -36,8 +36,9 @@ public class UserResponse {
                 user.getContacts().orElse(null),
                 user.getTimezone(),
                 user.getPosition().orElse(null),
-                user.getDepartments().stream()
-                    .map(Department::getId)
-                    .collect(ImmutableSet.toImmutableSet()));
+                user.getDepartments().map(departments -> departments.stream()
+                                .map(Department::getId)
+                                .collect(ImmutableSet.toImmutableSet()))
+                        .orElse(null));
     }
 }

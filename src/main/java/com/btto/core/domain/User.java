@@ -82,4 +82,8 @@ public class User implements EntityWithId {
     public Optional<String> getPosition() {
         return Optional.ofNullable(position);
     }
+
+    public Optional<Set<Department>> getDepartments() {
+        return Optional.ofNullable(departments);
+    }
 }

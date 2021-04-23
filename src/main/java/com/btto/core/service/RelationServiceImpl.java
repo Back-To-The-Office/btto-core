@@ -42,8 +42,9 @@ public class RelationServiceImpl implements RelationService {
     }
 
     private Stream<User> getDirectManagers(final User user) {
-        return user.getDepartments().stream()
-                .filter(department -> department.getOwner().isPresent())
-                .map(department -> department.getOwner().get());
+        return user.getDepartments().map(departments -> departments.stream()
+                    .filter(department -> department.getOwner().isPresent())
+                    .map(department -> department.getOwner().get()))
+                .orElse(Stream.of());
     }
 }

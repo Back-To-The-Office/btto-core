@@ -70,9 +70,9 @@ public class MockUserBuilder {
             when(user.getCompany()).thenReturn(Optional.of(company));
         }
         if (departments != null) {
-            when(user.getDepartments()).thenReturn(departments);
+            when(user.getDepartments()).thenReturn(Optional.of(departments));
         } else {
-            when(user.getDepartments()).thenReturn(ImmutableSet.of());
+            when(user.getDepartments()).thenReturn(Optional.of(ImmutableSet.of()));
         }
         if (email != null) {
             when(user.getEmail()).thenReturn(email);
