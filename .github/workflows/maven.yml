@@ -19,7 +19,7 @@ jobs:
       run: mvn -B package --file pom.xml
       
     - name: Build:dockerimage
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v1
       with:
         registry: ghcr.io
         username: "sefimov"
