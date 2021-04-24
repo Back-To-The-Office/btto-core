@@ -19,11 +19,10 @@ jobs:
       run: mvn -B package --file pom.xml
       
     - name: Build:dockerimage
-        uses: docker/build-push-action@v1
-        with:
-          registry: ghcr.io
-          username: "sefimov"
-          password: ${{ secrets.PAT }}
-          repository: back-to-the-office/btto-core
-          tags: latest
-    
+      uses: docker/build-push-action@v1
+      with:
+        registry: ghcr.io
+        username: "sefimov"
+        password: ${{ secrets.PAT }}
+        repository: back-to-the-office/btto-core
+        tags: latest
