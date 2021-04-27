@@ -4,6 +4,7 @@ import com.btto.core.controller.model.CompanyUsersResponse;
 import com.btto.core.controller.model.CreateEntityResponse;
 import com.btto.core.controller.model.CreateUserRequest;
 import com.btto.core.controller.model.EditUserRequest;
+import com.btto.core.controller.model.FindUserRequest;
 import com.btto.core.controller.model.RegisterUserRequest;
 import com.btto.core.controller.model.UserResponse;
 import com.btto.core.domain.Company;
@@ -74,6 +75,20 @@ public class UserController extends ApiV1AbstractController {
         }
         return UserResponse.fromUserDomain(userService.find(userId)
                 .orElseThrow(() -> new ApiException("Can't find user with id " + userId, HttpStatus.GONE)));
+    }
+
+    @GetMapping("/users/find")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse findByEmail(@ApiIgnore @CurrentUser final User currentUser, @RequestBody @Valid FindUserRequest request) {
+        User user = userService.findUserByEmail(request.getEmail())
+                .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND));
+
+        if (!accessService.hasUserRight(currentUser, user.getId(), AccessService.UserRight.VIEW)) {
+            throw new ApiException("User not found", HttpStatus.NOT_FOUND);
+        }
+
+        return UserResponse.fromUserDomain(user);
     }
 
     @GetMapping("/users")
