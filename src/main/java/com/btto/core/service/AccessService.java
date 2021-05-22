@@ -14,6 +14,9 @@ public interface AccessService {
 
     boolean hasWorkSessionRight(User currentUser, Integer ownerId, WorkSessionRight workSessionRight);
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    boolean hasOfficeRight(User currentUser, @Nullable Integer officeId, OfficeRight officeRight);
+
     boolean isUserCanBeAddedToDepartment(Integer userId, Integer departmentId);
 
     boolean isUserCanBeRemovedFromDepartment(Integer userId, Integer departmentId);
@@ -32,5 +35,9 @@ public interface AccessService {
 
     enum WorkSessionRight {
         CREATE ,VIEW, EDIT, DELETE
+    }
+
+    enum OfficeRight {
+        CREATE, VIEW, EDIT, DELETE
     }
 }

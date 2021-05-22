@@ -74,7 +74,7 @@ public class UserServiceImpl extends AbstractEntityServiceImpl<User, UserDao> im
         );
         deactivatingUser.setDeactivatedEmail(deactivatingUser.getEmail());
         deactivatingUser.setEmail(UUID.randomUUID().toString().replaceAll("-", ""));
-        dao.update(deactivatingUser);
+        dao.merge(deactivatingUser);
     }
 
     @Override
@@ -107,7 +107,7 @@ public class UserServiceImpl extends AbstractEntityServiceImpl<User, UserDao> im
         doIfNotNull(role, user::setRole);
         doIfNotNull(position, user::setPosition);
 
-        return dao.update(user);
+        return dao.merge(user);
     }
 
     @Override

@@ -102,7 +102,7 @@ class WorkSessionServiceImplTest {
 
         workSessionService.editSession(id, currentTime, currentTime.plusSeconds(60));
 
-        verify(workSessionDao, times(1)).update(workSessionArgumentCaptor.capture());
+        verify(workSessionDao, times(1)).merge(workSessionArgumentCaptor.capture());
 
         final WorkSession actualSession = workSessionArgumentCaptor.getValue();
         assertNotNull(actualSession);
@@ -138,7 +138,7 @@ class WorkSessionServiceImplTest {
 
         workSessionService.closeActiveSession(user);
 
-        verify(workSessionDao, times(1)).update(workSessionArgumentCaptor.capture());
+        verify(workSessionDao, times(1)).merge(workSessionArgumentCaptor.capture());
 
         final WorkSession actualSession = workSessionArgumentCaptor.getValue();
         assertNotNull(actualSession);

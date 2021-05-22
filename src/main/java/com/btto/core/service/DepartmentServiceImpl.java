@@ -67,7 +67,7 @@ public class DepartmentServiceImpl extends AbstractEntityServiceImpl<Department,
             department.setName(name);
         }
 
-        return dao.update(department);
+        return dao.merge(department);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class DepartmentServiceImpl extends AbstractEntityServiceImpl<Department,
 
         department.setOwner(getUser(ownerId));
 
-        return dao.update(department);
+        return dao.merge(department);
     }
 
     @Override

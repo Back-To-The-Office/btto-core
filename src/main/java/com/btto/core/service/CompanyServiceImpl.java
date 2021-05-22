@@ -34,7 +34,7 @@ public class CompanyServiceImpl extends AbstractEntityServiceImpl<Company, Compa
         final Integer id = dao.create(company);
 
         creator.setCompany(company);
-        userDao.update(creator);
+        userDao.merge(creator);
 
         return id;
     }
@@ -47,7 +47,7 @@ public class CompanyServiceImpl extends AbstractEntityServiceImpl<Company, Compa
 
         company.setEnabled(false);
 
-        dao.update(company);
+        dao.merge(company);
     }
 
     @Override
@@ -60,6 +60,6 @@ public class CompanyServiceImpl extends AbstractEntityServiceImpl<Company, Compa
             company.setName(name);
         }
 
-        return dao.update(company);
+        return dao.merge(company);
     }
 }
