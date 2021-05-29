@@ -38,7 +38,7 @@ public abstract class AbstractJpaDaoImpl<T extends EntityWithId> implements Abst
     }
 
     @Override
-    public T update(final T entity){
+    public T merge(final T entity){
         return entityManager.merge(entity);
     }
 

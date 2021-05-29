@@ -36,7 +36,7 @@ class CompanyServiceImplTest {
         companyService.create(name, creator);
 
         verify(companyDao, times(1)).create(companyArgumentCaptor.capture());
-        verify(userDao, times(1)).update(userArgumentCaptor.capture());
+        verify(userDao, times(1)).merge(userArgumentCaptor.capture());
 
         final Company company = companyArgumentCaptor.getValue();
         assertEquals(company.getName(), name);

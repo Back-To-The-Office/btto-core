@@ -5,7 +5,7 @@ import java.util.List;
 public interface AbstractJpaDao<T> {
     void delete(T entity);
 
-    T update(T entity);
+    T merge(T entity);
 
     Integer create(T entity);
 

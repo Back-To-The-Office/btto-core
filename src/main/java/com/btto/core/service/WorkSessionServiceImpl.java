@@ -66,7 +66,7 @@ public class WorkSessionServiceImpl extends AbstractEntityServiceImpl<WorkSessio
         session.setStartDateTime(startDateTime);
         session.setEndDateTime(endDateTime);
 
-        return dao.update(session);
+        return dao.merge(session);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class WorkSessionServiceImpl extends AbstractEntityServiceImpl<WorkSessio
 
         activeSession.get().setEndDateTime(Instant.now());
 
-        dao.update(activeSession.get());
+        dao.merge(activeSession.get());
     }
 
     @Override

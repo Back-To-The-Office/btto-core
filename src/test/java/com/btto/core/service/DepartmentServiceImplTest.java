@@ -72,7 +72,7 @@ class DepartmentServiceImplTest {
 
         departmentService.update(1, "name2");
 
-        verify(departmentDao, times(1)).update(eq(department));
+        verify(departmentDao, times(1)).merge(eq(department));
 
         assertEquals(department.getName(), "name2");
     }
@@ -87,7 +87,7 @@ class DepartmentServiceImplTest {
 
         departmentService.update(1, null);
 
-        verify(departmentDao, times(1)).update(eq(department));
+        verify(departmentDao, times(1)).merge(eq(department));
 
         assertEquals(department.getName(), "name1");
     }
@@ -107,7 +107,7 @@ class DepartmentServiceImplTest {
 
         departmentService.assign(1, 2);
 
-        verify(departmentDao, times(1)).update(eq(department));
+        verify(departmentDao, times(1)).merge(eq(department));
 
         assertTrue(department.getOwner().isPresent());
         assertEquals(department.getOwner().get(), owner2);

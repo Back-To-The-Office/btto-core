@@ -207,6 +207,26 @@ public class AccessServiceImpl implements AccessService {
     }
 
     @Override
+    public boolean hasOfficeRight(final User currentUser, @Nullable Integer officeId, final OfficeRight officeRight) {
+
+        if (!currentUser.getCompany().isPresent() || !currentUser.getCompany().get().isEnabled()) {
+            return false;
+        }
+
+        switch (officeRight) {
+            case VIEW:
+                return true;
+            case CREATE:
+                return hasAdminRights(currentUser);
+            case DELETE:
+            case EDIT:
+                return hasAdminRights(currentUser) && currentUser.getCompany().get().getId().equals(officeId);
+        }
+
+        return false;
+    }
+
+    @Override
     public boolean isUserCanBeAddedToDepartment(final Integer userId, final Integer departmentId) {
         final User user = getUser(userId);
         final Department department = getDepartment(departmentId);

@@ -22,8 +22,8 @@ public class UserDaoImpl extends AbstractJpaDaoImpl<User> implements UserDao {
     }
 
     @Override
-    public User update(User entity) {
+    public User merge(User entity) {
         entity.setLastUpdate(Instant.now());
-        return super.update(entity);
+        return super.merge(entity);
     }
 }
