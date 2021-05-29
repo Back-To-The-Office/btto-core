@@ -20,4 +20,7 @@ public interface OfficeService extends AbstractEntityService<Office> {
 
     @Transactional
     void delete(Integer officeId);
+
+    @Transactional
+    List<String> getOfficeLevels(@NotNull Integer officeId);
 }

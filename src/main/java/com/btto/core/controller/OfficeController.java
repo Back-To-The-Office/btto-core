@@ -3,6 +3,7 @@ package com.btto.core.controller;
 import com.btto.core.controller.model.CreateEntityResponse;
 import com.btto.core.controller.model.CreateOrUpdateOfficeRequest;
 import com.btto.core.controller.model.OfficeModel;
+import com.btto.core.controller.model.RoomModel;
 import com.btto.core.domain.Company;
 import com.btto.core.domain.User;
 import com.btto.core.service.AccessService;
@@ -11,6 +12,7 @@ import com.btto.core.spring.CurrentUser;
 import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -68,7 +70,7 @@ public class OfficeController extends ApiV1AbstractController {
     @ResponseStatus(HttpStatus.OK)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public OfficeModel edit(@ApiIgnore @CurrentUser final User currentUser, @PathVariable final Integer officeId, @RequestBody @Valid CreateOrUpdateOfficeRequest request) {
-        if (!accessService.hasOfficeRight(currentUser, null, AccessService.OfficeRight.EDIT)) {
+        if (!accessService.hasOfficeRight(currentUser, officeId, AccessService.OfficeRight.EDIT)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to edit office " + officeId, HttpStatus.FORBIDDEN);
         }
 
@@ -79,10 +81,36 @@ public class OfficeController extends ApiV1AbstractController {
     @ResponseStatus(HttpStatus.OK)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void delete(@ApiIgnore @CurrentUser final User currentUser, @PathVariable final Integer officeId) {
-        if (!accessService.hasOfficeRight(currentUser, null, AccessService.OfficeRight.DELETE)) {
+        if (!accessService.hasOfficeRight(currentUser, officeId, AccessService.OfficeRight.DELETE)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to delete office " + officeId, HttpStatus.FORBIDDEN);
         }
 
         officeService.delete(officeId);
+    }
+
+    @GetMapping("/office/{officeId}/rooms")
+    @ResponseStatus(HttpStatus.OK)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public List<RoomModel> getRooms(@ApiIgnore @CurrentUser final User currentUser, @PathVariable @NonNull final Integer officeId) {
+        if (!accessService.hasOfficeRight(currentUser, officeId, AccessService.OfficeRight.VIEW)) {
+            throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to view office rooms.", HttpStatus.FORBIDDEN);
+        }
+
+        return officeService.find(officeId)
+                .map(office -> office.getRooms().stream()
+                        .map(RoomModel::fromRoom)
+                        .collect(ImmutableList.toImmutableList()))
+                .orElseThrow(() -> new ApiException("Can't find office with id " + officeId, HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping("/office/{officeId}/levels")
+    @ResponseStatus(HttpStatus.OK)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public List<String> getOfficeLevels(@ApiIgnore @CurrentUser final User currentUser, @PathVariable @NonNull final Integer officeId) {
+        if (!accessService.hasOfficeRight(currentUser, officeId, AccessService.OfficeRight.VIEW)) {
+            throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to view office rooms.", HttpStatus.FORBIDDEN);
+        }
+
+        return officeService.getOfficeLevels(officeId);
     }
 }

@@ -2,6 +2,8 @@ package com.btto.core.service;
 
 import com.btto.core.domain.Company;
 import com.btto.core.domain.Department;
+import com.btto.core.domain.Office;
+import com.btto.core.domain.Room;
 import com.btto.core.domain.User;
 import com.btto.core.domain.enums.Role;
 import lombok.extern.java.Log;
@@ -11,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
+
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -22,13 +26,19 @@ public class AccessServiceImpl implements AccessService {
     private final UserService userService;
     private final DepartmentService departmentService;
     private final RelationService relationService;
+    private final OfficeService officeService;
+    private final RoomService roomService;
 
     public AccessServiceImpl(@Autowired UserService userService,
                              @Autowired DepartmentService departmentService,
-                             @Autowired RelationService relationService) {
+                             @Autowired RelationService relationService,
+                             @Autowired OfficeService officeService,
+                             @Autowired RoomService roomService) {
         this.userService = userService;
         this.departmentService = departmentService;
         this.relationService = relationService;
+        this.officeService = officeService;
+        this.roomService = roomService;
     }
 
     @Override
@@ -207,20 +217,62 @@ public class AccessServiceImpl implements AccessService {
     }
 
     @Override
+    @Transactional
     public boolean hasOfficeRight(final User currentUser, @Nullable Integer officeId, final OfficeRight officeRight) {
-
         if (!currentUser.getCompany().isPresent() || !currentUser.getCompany().get().isEnabled()) {
             return false;
         }
 
+        Company userCompany = currentUser.getCompany().get();
+
         switch (officeRight) {
-            case VIEW:
-                return true;
             case CREATE:
                 return hasAdminRights(currentUser);
+            case VIEW:
+                return officeService.find(officeId)
+                        .map(office -> office.getCompany().getId().equals(userCompany.getId()))
+                        .orElse(false);
             case DELETE:
             case EDIT:
-                return hasAdminRights(currentUser) && currentUser.getCompany().get().getId().equals(officeId);
+                Optional<Office> subject = officeService.find(officeId);
+                if (!subject.isPresent()) {
+                    return false;
+                }
+                if (!subject.get().getCompany().getId().equals(userCompany.getId())) {
+                    return false;
+                }
+                return hasAdminRights(currentUser);
+        }
+
+        return false;
+    }
+
+    @Override
+    @Transactional
+    public boolean hasRoomRight(final User currentUser, @Nullable Integer roomId, final RoomRight roomRight) {
+        if (!currentUser.getCompany().isPresent() || !currentUser.getCompany().get().isEnabled()) {
+            return false;
+        }
+
+        Company userCompany = currentUser.getCompany().get();
+
+        switch (roomRight) {
+            case CREATE:
+                return hasAdminRights(currentUser);
+            case VIEW:
+                return roomService.find(roomId)
+                        .map(room -> room.getOffice().getCompany().getId().equals(userCompany.getId()))
+                        .orElse(false);
+            case DELETE:
+            case EDIT:
+                Optional<Room> subject = roomService.find(roomId);
+                if (!subject.isPresent()) {
+                    return false;
+                }
+                if (!subject.get().getOffice().getCompany().getId().equals(userCompany.getId())) {
+                    return false;
+                }
+                return hasAdminRights(currentUser);
         }
 
         return false;
