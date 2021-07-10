@@ -2,6 +2,7 @@ package com.btto.core.service;
 
 import com.btto.core.domain.Company;
 import com.btto.core.domain.Department;
+import com.btto.core.domain.Desk;
 import com.btto.core.domain.Office;
 import com.btto.core.domain.Room;
 import com.btto.core.domain.User;
@@ -28,17 +29,20 @@ public class AccessServiceImpl implements AccessService {
     private final RelationService relationService;
     private final OfficeService officeService;
     private final RoomService roomService;
+    private final DeskService deskService;
 
     public AccessServiceImpl(@Autowired UserService userService,
                              @Autowired DepartmentService departmentService,
                              @Autowired RelationService relationService,
                              @Autowired OfficeService officeService,
-                             @Autowired RoomService roomService) {
+                             @Autowired RoomService roomService,
+                             @Autowired DeskService deskService) {
         this.userService = userService;
         this.departmentService = departmentService;
         this.relationService = relationService;
         this.officeService = officeService;
         this.roomService = roomService;
+        this.deskService = deskService;
     }
 
     @Override
@@ -270,6 +274,37 @@ public class AccessServiceImpl implements AccessService {
                     return false;
                 }
                 if (!subject.get().getOffice().getCompany().getId().equals(userCompany.getId())) {
+                    return false;
+                }
+                return hasAdminRights(currentUser);
+        }
+
+        return false;
+    }
+
+    @Override
+    @Transactional
+    public boolean hasDeskRight(final User currentUser, @Nullable Integer deskId, final DeskRight deskRight) {
+        if (!currentUser.getCompany().isPresent() || !currentUser.getCompany().get().isEnabled()) {
+            return false;
+        }
+
+        Company userCompany = currentUser.getCompany().get();
+
+        switch (deskRight) {
+            case CREATE:
+                return hasAdminRights(currentUser);
+            case VIEW:
+                return deskService.find(deskId)
+                        .map(room -> room.getRoom().getOffice().getCompany().getId().equals(userCompany.getId()))
+                        .orElse(false);
+            case DELETE:
+            case EDIT:
+                Optional<Desk> subject = deskService.find(deskId);
+                if (!subject.isPresent()) {
+                    return false;
+                }
+                if (!subject.get().getRoom().getOffice().getCompany().getId().equals(userCompany.getId())) {
                     return false;
                 }
                 return hasAdminRights(currentUser);
