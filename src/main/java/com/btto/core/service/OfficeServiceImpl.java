@@ -1,6 +1,7 @@
 package com.btto.core.service;
 
 import com.btto.core.dao.OfficeDao;
+import com.btto.core.dao.RoomDao;
 import com.btto.core.domain.Company;
 import com.btto.core.domain.Office;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,12 @@ import java.util.Optional;
 @Service
 public class OfficeServiceImpl extends AbstractEntityServiceImpl<Office, OfficeDao> implements OfficeService {
 
+    private final RoomDao roomDao;
+
     @Autowired
-    public OfficeServiceImpl(OfficeDao dao) {
+    public OfficeServiceImpl(OfficeDao dao, RoomDao roomDao) {
         super(dao);
+        this.roomDao = roomDao;
     }
 
     @Override
@@ -55,6 +59,12 @@ public class OfficeServiceImpl extends AbstractEntityServiceImpl<Office, OfficeD
     @Transactional
     public void delete(final Integer officeId) {
         dao.deleteById(officeId);
+    }
+
+    @Override
+    @Transactional
+    public List<String> getOfficeLevels(@NotNull Integer officeId) {
+        return roomDao.findOfficeLevels(getOffice(officeId));
     }
 
     private Office getOffice(final Integer id) {

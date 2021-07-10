@@ -14,6 +14,10 @@ public class OfficeModel {
     Instant modifiedAt;
 
     public static OfficeModel fromOffice(Office office) {
-        return new OfficeModel(office.getId(), office.getName(), office.getAddress(), office.getCreatedAt(), office.getModifiedAt());
+        return new OfficeModel(office.getId(),
+                office.getName(),
+                office.getAddress(),
+                office.getCreatedAt(),
+                office.getModifiedAt());
     }
 }
