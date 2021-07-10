@@ -27,7 +27,7 @@ public class RoomServiceImpl extends AbstractEntityServiceImpl<Room, RoomDao> im
 
     @Override
     @Transactional
-    public Room create(@NotNull Company userCompany, @NotNull Integer officeId, String name, String level) {
+    public Room create(@NotNull Integer officeId, String name, String level) {
         final Room room = new Room();
         room.setOffice(getOffice(officeId));
         room.setName(name);
@@ -41,13 +41,8 @@ public class RoomServiceImpl extends AbstractEntityServiceImpl<Room, RoomDao> im
     public Room update(Integer id, @Nullable String name, @Nullable String level) {
         final Room office = getRoom(id);
 
-        if (level != null) {
-            office.setLevel(level);
-        }
-
-        if (name != null) {
-            office.setName(name);
-        }
+        office.setLevel(level);
+        office.setName(name);
 
         return dao.merge(office);
     }

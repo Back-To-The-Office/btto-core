@@ -3,7 +3,6 @@ package com.btto.core.controller;
 import com.btto.core.controller.model.CreateEntityResponse;
 import com.btto.core.controller.model.CreateOrUpdateRoomRequest;
 import com.btto.core.controller.model.RoomModel;
-import com.btto.core.domain.Company;
 import com.btto.core.domain.User;
 import com.btto.core.service.AccessService;
 import com.btto.core.service.RoomService;
@@ -50,13 +49,11 @@ public class RoomController extends ApiV1AbstractController {
     @ResponseStatus(HttpStatus.CREATED)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public CreateEntityResponse create(@ApiIgnore @CurrentUser final User currentUser, @RequestBody @Valid CreateOrUpdateRoomRequest request) {
-        final Company company = currentUser.getCompany().orElseThrow(
-                () -> new ApiException("User without company can't create a room. Please create company before.", HttpStatus.NOT_ACCEPTABLE));
         if (!accessService.hasRoomRight(currentUser, null, AccessService.RoomRight.CREATE)) {
             throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to create room.", HttpStatus.FORBIDDEN);
         }
 
-        return new CreateEntityResponse(roomService.create(company, request.getRoomId(), request.getName(), request.getLevel()).getId());
+        return new CreateEntityResponse(roomService.create(request.getOfficeId(), request.getName(), request.getLevel()).getId());
     }
 
     @PostMapping("/room/edit/{roomId}")

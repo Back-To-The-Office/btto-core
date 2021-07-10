@@ -12,5 +12,5 @@ public class CreateOrUpdateRoomRequest {
     @Nullable
     String level;
     @NotNull
-    Integer roomId;
+    Integer officeId;
 }

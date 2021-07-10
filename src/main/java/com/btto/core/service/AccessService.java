@@ -20,6 +20,9 @@ public interface AccessService {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean hasRoomRight(User currentUser, @Nullable Integer roomId, RoomRight roomRight);
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    boolean hasDeskRight(User currentUser, @Nullable Integer deskId, DeskRight deskRight);
+
     boolean isUserCanBeAddedToDepartment(Integer userId, Integer departmentId);
 
     boolean isUserCanBeRemovedFromDepartment(Integer userId, Integer departmentId);
@@ -45,6 +48,10 @@ public interface AccessService {
     }
 
     enum RoomRight {
+        CREATE, VIEW, EDIT, DELETE
+    }
+
+    enum DeskRight {
         CREATE, VIEW, EDIT, DELETE
     }
 }
