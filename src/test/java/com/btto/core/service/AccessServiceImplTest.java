@@ -24,12 +24,14 @@ class AccessServiceImplTest {
     private final RelationService relationService = mock(RelationService.class);
     private final OfficeService officeService = mock(OfficeService.class);
     private final RoomService roomService = mock(RoomService.class);
+    private final DeskService deskService = mock(DeskService.class);
 
     private final AccessService accessService = new AccessServiceImpl(userService,
             departmentService,
             relationService,
             officeService,
-            roomService);
+            roomService,
+            deskService);
 
     @Test
     void testThatUserCanViewCompany() {
