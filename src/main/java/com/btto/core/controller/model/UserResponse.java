@@ -3,6 +3,7 @@ package com.btto.core.controller.model;
 import com.btto.core.domain.Company;
 import com.btto.core.domain.Department;
 import com.btto.core.domain.User;
+import com.btto.core.domain.enums.Role;
 import com.google.common.collect.ImmutableSet;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +26,7 @@ public class UserResponse {
     private final ZoneId timezone;
     private final String position;
     private final Set<Integer> departmentsIds;
+    private final Role role;
 
     public static UserResponse fromUserDomain(final User user) {
         return new UserResponse(
@@ -39,6 +41,7 @@ public class UserResponse {
                 user.getDepartments().map(departments -> departments.stream()
                                 .map(Department::getId)
                                 .collect(ImmutableSet.toImmutableSet()))
-                        .orElse(null));
+                        .orElse(null),
+                user.getRole());
     }
 }
