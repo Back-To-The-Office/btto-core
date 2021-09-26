@@ -10,7 +10,8 @@ curl --location --request POST 'https://${BTTO_HOST}/api/v1/users/register' \
     "email": "test@test.com",
     "firstName": "First Name",
     "lastName": "Last Name",
-    "password": "1234"
+    "password": "1234",
+    "timezone":"UTC+3"
 }'
 ```
 
