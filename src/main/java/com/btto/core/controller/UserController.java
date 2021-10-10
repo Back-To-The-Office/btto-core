@@ -14,6 +14,7 @@ import com.btto.core.service.AccessService;
 import com.btto.core.service.UserService;
 import com.btto.core.spring.CurrentUser;
 import com.google.common.collect.ImmutableList;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Propagation;
@@ -30,6 +31,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 
+@Slf4j
 @RestController
 public class UserController extends ApiV1AbstractController {
 
@@ -46,6 +48,8 @@ public class UserController extends ApiV1AbstractController {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse register(@Valid @RequestBody final RegisterUserRequest request) {
+        log.info("!!!!! User name: " + request.getEmail());
+        log.info("!!!!! Password: " + request.getPassword());
         if (userService.isExists(request.getEmail())) {
             throw new ApiException("User with email " + request.getEmail() + " already exists", HttpStatus.CONFLICT);
         }
