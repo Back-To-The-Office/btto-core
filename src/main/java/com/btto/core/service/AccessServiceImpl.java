@@ -233,9 +233,13 @@ public class AccessServiceImpl implements AccessService {
             case CREATE:
                 return hasAdminRights(currentUser);
             case VIEW:
-                return officeService.find(officeId)
-                        .map(office -> office.getCompany().getId().equals(userCompany.getId()))
-                        .orElse(false);
+                if (officeId == null) {
+                    return true;
+                } else {
+                    return officeService.find(officeId)
+                            .map(office -> office.getCompany().getId().equals(userCompany.getId()))
+                            .orElse(false);
+                }
             case DELETE:
             case EDIT:
                 Optional<Office> subject = officeService.find(officeId);
