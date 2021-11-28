@@ -1,13 +1,13 @@
 package com.btto.core.controller.model;
 
-import lombok.Value;
+import lombok.Data;
 
 import javax.annotation.Nullable;
 
-@Value
+@Data
 public class CreateOrUpdateDeskRequest {
     @Nullable
-    String name;
-    int capacity;
-    int roomId;
+    private String name;
+    private int capacity;
+    private int roomId;
 }

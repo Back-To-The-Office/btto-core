@@ -1,11 +1,11 @@
 package com.btto.core.controller.model;
 
-import lombok.Value;
+import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 
-@Value
+@Data
 public class CreateWorkSessionRequest {
     @NotNull
-    Integer ownerId;
+    private Integer ownerId;
 }

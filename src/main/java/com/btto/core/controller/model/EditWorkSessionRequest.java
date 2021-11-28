@@ -1,11 +1,11 @@
 package com.btto.core.controller.model;
 
-import lombok.Value;
+import lombok.Data;
 
 import java.time.Instant;
 
-@Value
+@Data
 public class EditWorkSessionRequest {
-    Instant startTime;
-    Instant endTime;
+    private Instant startTime;
+    private Instant endTime;
 }

@@ -1,16 +1,16 @@
 package com.btto.core.controller.model;
 
-import lombok.Value;
+import lombok.Data;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
-@Value
+@Data
 public class CreateOrUpdateRoomRequest {
     @Nullable
-    String name;
+    private String name;
     @Nullable
-    String level;
+    private String level;
     @NotNull
-    Integer officeId;
+    private Integer officeId;
 }

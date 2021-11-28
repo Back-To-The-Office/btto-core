@@ -1,13 +1,13 @@
 package com.btto.core.controller.model;
 
-import lombok.Value;
+import lombok.Data;
 
 import javax.annotation.Nullable;
 
-@Value
+@Data
 public class CreateOrUpdateOfficeRequest {
     @Nullable
-    String name;
+    private String name;
     @Nullable
-    String address;
+    private String address;
 }
