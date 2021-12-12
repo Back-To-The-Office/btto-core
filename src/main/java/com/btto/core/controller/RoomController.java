@@ -2,12 +2,15 @@ package com.btto.core.controller;
 
 import com.btto.core.controller.model.CreateEntityResponse;
 import com.btto.core.controller.model.CreateOrUpdateRoomRequest;
+import com.btto.core.controller.model.DeskModel;
 import com.btto.core.controller.model.RoomModel;
+import com.btto.core.domain.Desk;
 import com.btto.core.domain.User;
 import com.btto.core.service.AccessService;
+import com.btto.core.service.DeskService;
 import com.btto.core.service.RoomService;
 import com.btto.core.spring.CurrentUser;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,18 +24,17 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
+@RequiredArgsConstructor
 public class RoomController extends ApiV1AbstractController {
 
     private final AccessService accessService;
     private final RoomService roomService;
+    private final DeskService deskService;
 
-    @Autowired
-    public RoomController(AccessService accessService, RoomService roomService) {
-        this.accessService = accessService;
-        this.roomService = roomService;
-    }
 
     @GetMapping("/room/{roomId}")
     @ResponseStatus(HttpStatus.OK)
@@ -43,6 +45,21 @@ public class RoomController extends ApiV1AbstractController {
         }
         return RoomModel.fromRoom(roomService.find(roomId)
                 .orElseThrow(() -> new ApiException("Can't find room with id " + roomId, HttpStatus.NOT_FOUND)));
+    }
+
+    @GetMapping("/room/{roomId}/desks")
+    @ResponseStatus(HttpStatus.OK)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public List<DeskModel> getDesks(@ApiIgnore @CurrentUser final User currentUser, @PathVariable final Integer roomId) {
+        if (!accessService.hasRoomRight(currentUser, roomId, AccessService.RoomRight.VIEW)) {
+            throw new ApiException("User " + currentUser.getId() + " doesn't have enough rights to view room.", HttpStatus.FORBIDDEN);
+        }
+
+        List<Desk> desks = deskService.finalAllDesksOfRoom(roomId);
+
+        return desks.stream()
+                .map(DeskModel::fromDesk)
+                .collect(Collectors.toList());
     }
 
     @PostMapping("/room/create")
